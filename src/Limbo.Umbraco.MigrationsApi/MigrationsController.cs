@@ -33,12 +33,14 @@ namespace Limbo.Umbraco.MigrationsApi {
             return Umbraco.TypedContentAtRoot().Select(x => MapContentItem(x, MaxLevel));
         }
 
+        [HttpGet]
         public object GetContentById(int id) {
             if (!HasAccess()) return Unauthorized();
             IPublishedContent content = Umbraco.TypedContent(id);
             return content == null ? NotFound() : MapContent(content, MaxLevel);
         }
 
+        [HttpGet]
         public object GetContentByKey(Guid key) {
             if (!HasAccess()) return Unauthorized();
             IPublishedContent content = Umbraco.TypedContent(key);
@@ -51,30 +53,35 @@ namespace Limbo.Umbraco.MigrationsApi {
             return Umbraco.TypedMediaAtRoot().Select(x => MapMediaItem(x, MaxLevel));
         }
 
+        [HttpGet]
         public object GetMediaById(int id) {
             if (!HasAccess()) return Unauthorized();
             IPublishedContent media = Umbraco.TypedMedia(id);
             return media == null ? NotFound() : MapMedia(media, MaxLevel);
         }
 
+        [HttpGet]
         public object GetMediaByKey(Guid key) {
             if (!HasAccess()) return Unauthorized();
             IPublishedContent media = Umbraco.TypedMedia(key);
             return media == null ? NotFound() : MapMedia(media, MaxLevel);
         }
 
+        [HttpGet]
         public object GetMemberById(int id) {
             if (!HasAccess()) return Unauthorized();
             IMember member = ApplicationContext.Services.MemberService.GetById(id);
             return member == null ? NotFound() : MapMember(member);
         }
 
+        [HttpGet]
         public object GetMemberByKey(Guid key) {
             if (!HasAccess()) return Unauthorized();
             IMember member = ApplicationContext.Services.MemberService.GetByKey(key);
             return member == null ? NotFound() : MapMember(member);
         }
 
+        [HttpGet]
         public object GetAllMembers() {
             if (!HasAccess()) return Unauthorized();
             return ApplicationContext.Services.MemberService.GetAllMembers().Select(MapMember);
