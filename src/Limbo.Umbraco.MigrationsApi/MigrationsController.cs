@@ -109,6 +109,14 @@ namespace Limbo.Umbraco.MigrationsApi {
         }
 
         [HttpGet]
+        public object GetContentTypes() {
+            if (!HasAccess()) return Unauthorized();
+            return ApplicationContext.Services.ContentTypeService
+                .GetAllContentTypes()
+                .Select(MapContentType);
+        }
+
+        [HttpGet]
         public object GetMediaTypeById(int id) {
             if (!HasAccess()) return Unauthorized();
             IMediaType contentType = ApplicationContext.Services.ContentTypeService.GetMediaType(id);
@@ -130,6 +138,14 @@ namespace Limbo.Umbraco.MigrationsApi {
         }
 
         [HttpGet]
+        public object GetMediaTypes() {
+            if (!HasAccess()) return Unauthorized();
+            return ApplicationContext.Services.ContentTypeService
+                .GetAllMediaTypes()
+                .Select(MapMediaType);
+        }
+
+        [HttpGet]
         public object GetMemberTypeById(int id) {
             if (!HasAccess()) return Unauthorized();
             IMemberType memberType = ApplicationContext.Services.MemberTypeService.Get(id);
@@ -148,6 +164,14 @@ namespace Limbo.Umbraco.MigrationsApi {
             if (!HasAccess()) return Unauthorized();
             IMemberType memberType = ApplicationContext.Services.MemberTypeService.Get(alias);
             return MapMemberType(memberType);
+        }
+
+        [HttpGet]
+        public object GetMemberTypes() {
+            if (!HasAccess()) return Unauthorized();
+            return ApplicationContext.Services.MemberTypeService
+                .GetAll()
+                .Select(MapMemberType);
         }
 
         private object MapContentType(IContentType contentType) {
