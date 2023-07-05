@@ -41,3 +41,15 @@ or:
 ```
 Install-Package Limbo.Umbraco.MigrationsApi -Version 1.0.0
 ```
+
+
+
+<br /><br />
+
+### Configuration
+
+Add a `LimboMigrationsApiKey` to `<appSettings>` in your `Web.config` file:
+
+```xml
+<add key="LimboMigrationsApiKey" value="your secret key" />
+```
