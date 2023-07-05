@@ -87,6 +87,129 @@ namespace Limbo.Umbraco.MigrationsApi {
             return ApplicationContext.Services.MemberService.GetAllMembers().Select(MapMember);
         }
 
+        [HttpGet]
+        public object GetContentTypeById(int id) {
+            if (!HasAccess()) return Unauthorized();
+            IContentType contentType = ApplicationContext.Services.ContentTypeService.GetContentType(id);
+            return MapContentType(contentType);
+        }
+
+        [HttpGet]
+        public object GetContentTypeByKey(Guid key) {
+            if (!HasAccess()) return Unauthorized();
+            IContentType contentType = ApplicationContext.Services.ContentTypeService.GetContentType(key);
+            return MapContentType(contentType);
+        }
+
+        [HttpGet]
+        public object GetContentTypeByAlias(string alias) {
+            if (!HasAccess()) return Unauthorized();
+            IContentType contentType = ApplicationContext.Services.ContentTypeService.GetContentType(alias);
+            return MapContentType(contentType);
+        }
+
+        [HttpGet]
+        public object GetMediaTypeById(int id) {
+            if (!HasAccess()) return Unauthorized();
+            IMediaType contentType = ApplicationContext.Services.ContentTypeService.GetMediaType(id);
+            return MapMediaType(contentType);
+        }
+
+        [HttpGet]
+        public object GetMediaTypeByKey(Guid key) {
+            if (!HasAccess()) return Unauthorized();
+            IMediaType contentType = ApplicationContext.Services.ContentTypeService.GetMediaType(key);
+            return MapMediaType(contentType);
+        }
+
+        [HttpGet]
+        public object GetMediaTypeByAlias(string alias) {
+            if (!HasAccess()) return Unauthorized();
+            IMediaType contentType = ApplicationContext.Services.ContentTypeService.GetMediaType(alias);
+            return MapMediaType(contentType);
+        }
+
+        [HttpGet]
+        public object GetMemberTypeById(int id) {
+            if (!HasAccess()) return Unauthorized();
+            IMemberType memberType = ApplicationContext.Services.MemberTypeService.Get(id);
+            return MapMemberType(memberType);
+        }
+
+        [HttpGet]
+        public object GetMemberTypeByKey(Guid key) {
+            if (!HasAccess()) return Unauthorized();
+            IMemberType memberType = ApplicationContext.Services.MemberTypeService.Get(key);
+            return MapMemberType(memberType);
+        }
+
+        [HttpGet]
+        public object GetMemberTypeByAlias(string alias) {
+            if (!HasAccess()) return Unauthorized();
+            IMemberType memberType = ApplicationContext.Services.MemberTypeService.Get(alias);
+            return MapMemberType(memberType);
+        }
+
+        private object MapContentType(IContentType contentType) {
+            if (contentType == null) return null;
+            return new {
+                id = contentType.Id,
+                key = contentType.Key,
+                alias = contentType.Alias,
+                name = contentType.Name,
+                icon = contentType.Icon,
+                tabs = contentType.CompositionPropertyGroups.Select(MapPropertyGroup)
+            };
+        }
+
+        private object MapMediaType(IMediaType mediaType) {
+            if (mediaType == null) return null;
+            return new {
+                id = mediaType.Id,
+                key = mediaType.Key,
+                alias = mediaType.Alias,
+                name = mediaType.Name,
+                icon = mediaType.Icon,
+                tabs = mediaType.CompositionPropertyGroups.Select(MapPropertyGroup)
+            };
+        }
+
+        private object MapMemberType(IMemberType memberType) {
+            if (memberType == null) return null;
+            return new {
+                id = memberType.Id,
+                key = memberType.Key,
+                alias = memberType.Alias,
+                name = memberType.Name,
+                icon = memberType.Icon,
+                tabs = memberType.CompositionPropertyGroups.Select(MapPropertyGroup)
+            };
+        }
+
+        private object MapPropertyGroup(PropertyGroup propertyGroup) {
+            return new {
+                id = propertyGroup.Id,
+                key = propertyGroup.Key,
+                name = propertyGroup.Name,
+                sortOrder = propertyGroup.SortOrder,
+                properties = propertyGroup.PropertyTypes.Select(MapPropertyType)
+            };
+        }
+
+        private object MapPropertyType(PropertyType propertyType) {
+            return new {
+                id = propertyType.Id,
+                key = propertyType.Key,
+                alias = propertyType.Alias,
+                name = propertyType.Name,
+                description = propertyType.Description,
+                sortOrder = propertyType.SortOrder,
+                editorAlias = propertyType.PropertyEditorAlias,
+                dataTypeId = propertyType.DataTypeDefinitionId,
+                mandatory = propertyType.Mandatory
+            };
+        }
+
         private static bool HasAccess() {
 
             string expectedApiKey = WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
