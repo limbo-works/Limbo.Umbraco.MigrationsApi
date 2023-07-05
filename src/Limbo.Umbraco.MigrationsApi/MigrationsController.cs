@@ -182,8 +182,28 @@ namespace Limbo.Umbraco.MigrationsApi {
                 alias = contentType.Alias,
                 name = contentType.Name,
                 icon = contentType.Icon,
-                tabs = contentType.CompositionPropertyGroups.Select(MapPropertyGroup)
+                tabs = contentType.CompositionPropertyGroups.Select(MapPropertyGroup),
+                defaultTemplate = MapTemplateItem(contentType.DefaultTemplate),
+                allowedAsRoot = contentType.AllowedAsRoot,
+                allowedContentTypes = contentType.AllowedContentTypes.Select(MapContentTypeItem),
+                allowedTemplate = contentType.AllowedTemplates.Select(MapTemplateItem),
+                compositions = contentType
+                    .CompositionIds()
+                    .Select(x => ApplicationContext.Services.ContentTypeService.GetContentType(x))
+                    .Select(MapContentTypeItem)
             };
+        }
+
+        private object MapContentTypeItem(ContentTypeSort contentType) {
+            return MapContentTypeItem(ApplicationContext.Services.ContentTypeService.GetContentType(contentType.Alias));
+        }
+
+        private object MapContentTypeItem(IContentType contentType) {
+            return contentType == null ? null : new { id = contentType.Id, key = contentType.Key, alias = contentType.Alias, name = contentType.Name };
+        }
+
+        private object MapTemplateItem(ITemplate template) {
+            return template == null ? null : new { id = template.Id, key = template.Key, alias = template.Alias, name = template.Name };
         }
 
         private object MapMediaType(IMediaType mediaType) {
@@ -194,8 +214,22 @@ namespace Limbo.Umbraco.MigrationsApi {
                 alias = mediaType.Alias,
                 name = mediaType.Name,
                 icon = mediaType.Icon,
-                tabs = mediaType.CompositionPropertyGroups.Select(MapPropertyGroup)
+                tabs = mediaType.CompositionPropertyGroups.Select(MapPropertyGroup),
+                allowedAsRoot = mediaType.AllowedAsRoot,
+                allowedContentTypes = mediaType.AllowedContentTypes.Select(MapMediaTypeItem),
+                compositions = mediaType
+                    .CompositionIds()
+                    .Select(x => ApplicationContext.Services.ContentTypeService.GetMediaType(x))
+                    .Select(MapMediaTypeItem)
             };
+        }
+
+        private object MapMediaTypeItem(ContentTypeSort mediaType) {
+            return MapContentTypeItem(ApplicationContext.Services.ContentTypeService.GetContentType(mediaType.Alias));
+        }
+
+        private object MapMediaTypeItem(IMediaType mediaType) {
+            return mediaType == null ? null : new { id = mediaType.Id, key = mediaType.Key, alias = mediaType.Alias, name = mediaType.Name };
         }
 
         private object MapMemberType(IMemberType memberType) {
@@ -206,8 +240,16 @@ namespace Limbo.Umbraco.MigrationsApi {
                 alias = memberType.Alias,
                 name = memberType.Name,
                 icon = memberType.Icon,
-                tabs = memberType.CompositionPropertyGroups.Select(MapPropertyGroup)
+                tabs = memberType.CompositionPropertyGroups.Select(MapPropertyGroup),
+                compositions = memberType
+                    .CompositionIds()
+                    .Select(x => ApplicationContext.Services.MemberTypeService.Get(x))
+                    .Select(MapMemberTypeItem)
             };
+        }
+
+        private object MapMemberTypeItem(IMemberType memberType) {
+            return memberType == null ? null : new { id = memberType.Id, key = memberType.Key, alias = memberType.Alias, name = memberType.Name };
         }
 
         private object MapPropertyGroup(PropertyGroup propertyGroup) {
