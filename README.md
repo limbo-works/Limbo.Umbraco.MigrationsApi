@@ -30,16 +30,16 @@ Adds an API to Umbraco 7 for exporting content, media and members. The API can t
 
 ### Installation
 
-Via  [**NuGet**](https://www.nuget.org/packages/Limbo.Umbraco.MigrationsApi/1.0.1):
+Via  [**NuGet**](https://www.nuget.org/packages/Limbo.Umbraco.MigrationsApi/1.0.2):
 
 ```
-dotnet add package Limbo.Umbraco.MigrationsApi --version 1.0.1
+dotnet add package Limbo.Umbraco.MigrationsApi --version 1.0.2
 ```
 
 or:
 
 ```
-Install-Package Limbo.Umbraco.MigrationsApi -Version 1.0.1
+Install-Package Limbo.Umbraco.MigrationsApi -Version 1.0.2
 ```
 
 
