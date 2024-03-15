@@ -1,5 +1,5 @@
 ---
-icon: fa-solid fa-photo-film-music
+icon: fa-solid fa-photo-film
 ---
 
 # Media
