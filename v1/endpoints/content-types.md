@@ -1,3 +1,7 @@
+---
+icon: fa-solid fa-gear
+---
+
 # Content Types
 
 
