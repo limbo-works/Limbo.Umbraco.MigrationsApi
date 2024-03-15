@@ -43,6 +43,8 @@ Returns the content item with the specified GUID `key`.
 GET /umbraco/Limbo/Migrations/GetContentByKey?key={key}&maxLevel={maxLevel}
 ```
 
+**Parameters:**
+
 - `key` (required)
 The GUID key of the content node.
 
