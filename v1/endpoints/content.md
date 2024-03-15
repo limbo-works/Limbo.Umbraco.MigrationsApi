@@ -30,7 +30,7 @@ GET /umbraco/Limbo/Migrations/GetContentById?id={id}&maxLevel={maxLevel}
 - `id` (required)
 The ID of the content node.
 
-- `maxLevel`
+- `maxLevel` (optional)
 The maximal level of children/descendants to return.
 
 
@@ -48,6 +48,6 @@ GET /umbraco/Limbo/Migrations/GetContentByKey?key={key}&maxLevel={maxLevel}
 - `key` (required)
 The GUID key of the content node.
 
-- `maxLevel`
+- `maxLevel` (optional)
 The maximal level of children/descendants to return.
 
