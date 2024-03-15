@@ -5,7 +5,7 @@
 ## Get content at root
 
 ```
-GET /umbraco/Limbo/Migrations/GetContentAtRoot
+GET /umbraco/Limbo/Migrations/GetContentAtRoot?maxLevel={maxLevel}
 ```
 
 **Parameters:**
@@ -18,7 +18,7 @@ The maximal level of children/descendants to return.
 ## Get content by ID
 
 ```
-GET /umbraco/Limbo/Migrations/GetContentById
+GET /umbraco/Limbo/Migrations/GetContentById?id={id}&maxLevel={maxLevel}
 ```
 
 **Parameters:**
@@ -34,7 +34,7 @@ The maximal level of children/descendants to return.
 ## Get content by key
 
 ```
-GET /umbraco/Limbo/Migrations/GetContentByKey
+GET /umbraco/Limbo/Migrations/GetContentByKey?key={key}&maxLevel={maxLevel}
 ```
 
 - `key` (required)
