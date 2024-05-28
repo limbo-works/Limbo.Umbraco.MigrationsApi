@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Configuration;
@@ -15,7 +14,7 @@ using Skybrud.Essentials.Time;
 using Skybrud.WebApi.Json;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
+using Umbraco.Core.Services;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.WebApi;
 
@@ -25,154 +24,174 @@ namespace Limbo.Umbraco.MigrationsApi {
     [PluginController("Limbo")]
     public class MigrationsController : UmbracoApiController {
 
+        private readonly IContentTypeService _contentTypeService;
+        private readonly IMediaTypeService _mediaTypeService;
+        private readonly IMemberTypeService _memberTypeService;
+        private readonly IMemberService _memberService;
+
         public int? MaxLevel = HttpContext.Current.Request.QueryString["maxLevel"].ToInt32OrNull();
+
+        #region Constructors
+
+        public MigrationsController(IContentTypeService contentTypeService, IMediaTypeService mediaTypeService, IMemberTypeService memberTypeService, IMemberService memberService) {
+            _contentTypeService = contentTypeService;
+            _mediaTypeService = mediaTypeService;
+            _memberTypeService = memberTypeService;
+            _memberService = memberService;
+        }
+
+        #endregion
+
+        #region Public API methods
 
         [HttpGet]
         public object GetContentAtRoot() {
             if (!HasAccess()) return Unauthorized();
-            return Umbraco.TypedContentAtRoot().Select(x => MapContentItem(x, MaxLevel));
+            return Umbraco.ContentAtRoot().Select(x => MapContentItem(x, MaxLevel));
         }
 
         [HttpGet]
         public object GetContentById(int id) {
             if (!HasAccess()) return Unauthorized();
-            IPublishedContent content = Umbraco.TypedContent(id);
+            IPublishedContent content = Umbraco.Content(id);
             return content == null ? NotFound() : MapContent(content, MaxLevel);
         }
 
         [HttpGet]
         public object GetContentByKey(Guid key) {
             if (!HasAccess()) return Unauthorized();
-            IPublishedContent content = Umbraco.TypedContent(key);
+            IPublishedContent content = Umbraco.Content(key);
             return content == null ? NotFound() : MapContent(content, MaxLevel);
         }
 
         [HttpGet]
         public object GetMediaAtRoot() {
             if (!HasAccess()) return Unauthorized();
-            return Umbraco.TypedMediaAtRoot().Select(x => MapMediaItem(x, MaxLevel));
+            return Umbraco.MediaAtRoot().Select(x => MapMediaItem(x, MaxLevel));
         }
 
         [HttpGet]
         public object GetMediaById(int id) {
             if (!HasAccess()) return Unauthorized();
-            IPublishedContent media = Umbraco.TypedMedia(id);
+            IPublishedContent media = Umbraco.Media(id);
             return media == null ? NotFound() : MapMedia(media, MaxLevel);
         }
 
         [HttpGet]
         public object GetMediaByKey(Guid key) {
             if (!HasAccess()) return Unauthorized();
-            IPublishedContent media = Umbraco.TypedMedia(key);
+            IPublishedContent media = Umbraco.Media(key);
             return media == null ? NotFound() : MapMedia(media, MaxLevel);
         }
 
         [HttpGet]
         public object GetMemberById(int id) {
             if (!HasAccess()) return Unauthorized();
-            IMember member = ApplicationContext.Services.MemberService.GetById(id);
+            IMember member = _memberService.GetById(id);
             return member == null ? NotFound() : MapMember(member);
         }
 
         [HttpGet]
         public object GetMemberByKey(Guid key) {
             if (!HasAccess()) return Unauthorized();
-            IMember member = ApplicationContext.Services.MemberService.GetByKey(key);
+            IMember member = _memberService.GetByKey(key);
             return member == null ? NotFound() : MapMember(member);
         }
 
         [HttpGet]
         public object GetAllMembers() {
             if (!HasAccess()) return Unauthorized();
-            return ApplicationContext.Services.MemberService.GetAllMembers().Select(MapMember);
+            return _memberService.GetAllMembers().Select(MapMember);
         }
 
         [HttpGet]
         public object GetContentTypeById(int id) {
             if (!HasAccess()) return Unauthorized();
-            IContentType contentType = ApplicationContext.Services.ContentTypeService.GetContentType(id);
+            IContentType contentType = _contentTypeService.Get(id);
             return MapContentType(contentType);
         }
 
         [HttpGet]
         public object GetContentTypeByKey(Guid key) {
             if (!HasAccess()) return Unauthorized();
-            IContentType contentType = ApplicationContext.Services.ContentTypeService.GetContentType(key);
+            IContentType contentType = _contentTypeService.Get(key);
             return MapContentType(contentType);
         }
 
         [HttpGet]
         public object GetContentTypeByAlias(string alias) {
             if (!HasAccess()) return Unauthorized();
-            IContentType contentType = ApplicationContext.Services.ContentTypeService.GetContentType(alias);
+            IContentType contentType = _contentTypeService.Get(alias);
             return MapContentType(contentType);
         }
 
         [HttpGet]
         public object GetContentTypes() {
             if (!HasAccess()) return Unauthorized();
-            return ApplicationContext.Services.ContentTypeService
-                .GetAllContentTypes()
+            return _contentTypeService
+                .GetAll()
                 .Select(MapContentType);
         }
 
         [HttpGet]
         public object GetMediaTypeById(int id) {
             if (!HasAccess()) return Unauthorized();
-            IMediaType contentType = ApplicationContext.Services.ContentTypeService.GetMediaType(id);
+            IMediaType contentType = _mediaTypeService.Get(id);
             return MapMediaType(contentType);
         }
 
         [HttpGet]
         public object GetMediaTypeByKey(Guid key) {
             if (!HasAccess()) return Unauthorized();
-            IMediaType contentType = ApplicationContext.Services.ContentTypeService.GetMediaType(key);
+            IMediaType contentType = _mediaTypeService.Get(key);
             return MapMediaType(contentType);
         }
 
         [HttpGet]
         public object GetMediaTypeByAlias(string alias) {
             if (!HasAccess()) return Unauthorized();
-            IMediaType contentType = ApplicationContext.Services.ContentTypeService.GetMediaType(alias);
+            IMediaType contentType = _mediaTypeService.Get(alias);
             return MapMediaType(contentType);
         }
 
         [HttpGet]
         public object GetMediaTypes() {
             if (!HasAccess()) return Unauthorized();
-            return ApplicationContext.Services.ContentTypeService
-                .GetAllMediaTypes()
+            return _mediaTypeService
+                .GetAll()
                 .Select(MapMediaType);
         }
 
         [HttpGet]
         public object GetMemberTypeById(int id) {
             if (!HasAccess()) return Unauthorized();
-            IMemberType memberType = ApplicationContext.Services.MemberTypeService.Get(id);
+            IMemberType memberType = _memberTypeService.Get(id);
             return MapMemberType(memberType);
         }
 
         [HttpGet]
         public object GetMemberTypeByKey(Guid key) {
             if (!HasAccess()) return Unauthorized();
-            IMemberType memberType = ApplicationContext.Services.MemberTypeService.Get(key);
+            IMemberType memberType = _memberTypeService.Get(key);
             return MapMemberType(memberType);
         }
 
         [HttpGet]
         public object GetMemberTypeByAlias(string alias) {
             if (!HasAccess()) return Unauthorized();
-            IMemberType memberType = ApplicationContext.Services.MemberTypeService.Get(alias);
+            IMemberType memberType = _memberTypeService.Get(alias);
             return MapMemberType(memberType);
         }
 
         [HttpGet]
         public object GetMemberTypes() {
             if (!HasAccess()) return Unauthorized();
-            return ApplicationContext.Services.MemberTypeService
+            return _memberTypeService
                 .GetAll()
                 .Select(MapMemberType);
         }
+
+        #endregion
 
         private object MapContentType(IContentType contentType) {
             if (contentType == null) return null;
@@ -189,13 +208,13 @@ namespace Limbo.Umbraco.MigrationsApi {
                 allowedTemplate = contentType.AllowedTemplates.Select(MapTemplateItem),
                 compositions = contentType
                     .CompositionIds()
-                    .Select(x => ApplicationContext.Services.ContentTypeService.GetContentType(x))
+                    .Select(x => _contentTypeService.Get(x))
                     .Select(MapContentTypeItem)
             };
         }
 
         private object MapContentTypeItem(ContentTypeSort contentType) {
-            return MapContentTypeItem(ApplicationContext.Services.ContentTypeService.GetContentType(contentType.Alias));
+            return MapContentTypeItem(_contentTypeService.Get(contentType.Alias));
         }
 
         private object MapContentTypeItem(IContentType contentType) {
@@ -219,13 +238,13 @@ namespace Limbo.Umbraco.MigrationsApi {
                 allowedContentTypes = mediaType.AllowedContentTypes.Select(MapMediaTypeItem),
                 compositions = mediaType
                     .CompositionIds()
-                    .Select(x => ApplicationContext.Services.ContentTypeService.GetMediaType(x))
+                    .Select(x => _mediaTypeService.Get(x))
                     .Select(MapMediaTypeItem)
             };
         }
 
         private object MapMediaTypeItem(ContentTypeSort mediaType) {
-            return MapContentTypeItem(ApplicationContext.Services.ContentTypeService.GetContentType(mediaType.Alias));
+            return MapMediaTypeItem(_mediaTypeService.Get(mediaType.Alias));
         }
 
         private object MapMediaTypeItem(IMediaType mediaType) {
@@ -243,7 +262,7 @@ namespace Limbo.Umbraco.MigrationsApi {
                 tabs = memberType.CompositionPropertyGroups.Select(MapPropertyGroup),
                 compositions = memberType
                     .CompositionIds()
-                    .Select(x => ApplicationContext.Services.MemberTypeService.Get(x))
+                    .Select(x => _memberTypeService.Get(x))
                     .Select(MapMemberTypeItem)
             };
         }
@@ -271,7 +290,7 @@ namespace Limbo.Umbraco.MigrationsApi {
                 description = propertyType.Description,
                 sortOrder = propertyType.SortOrder,
                 editorAlias = propertyType.PropertyEditorAlias,
-                dataTypeId = propertyType.DataTypeDefinitionId,
+                dataTypeId = propertyType.DataTypeId,
                 mandatory = propertyType.Mandatory
             };
         }
@@ -298,12 +317,12 @@ namespace Limbo.Umbraco.MigrationsApi {
 
             JObject json = JObject.FromObject(new {
                 id = media.Id,
-                key = media.GetKey(),
+                key = media.Key,
                 name = media.Name,
                 url = media.Url,
-                type = media.DocumentTypeAlias,
-                createDate = new EssentialsTime(media.CreateDate, TimeZoneInfo.Local),
-                updateDate = new EssentialsTime(media.UpdateDate, TimeZoneInfo.Local)
+                type = media.ContentType.Alias,
+                createDate = EssentialsTime.FromTicks(media.CreateDate.Ticks, TimeZoneInfo.Local),
+                updateDate = EssentialsTime.FromTicks(media.UpdateDate.Ticks, TimeZoneInfo.Local)
             });
 
             if (media.Level < maxLevel) {
@@ -324,12 +343,12 @@ namespace Limbo.Umbraco.MigrationsApi {
 
             JObject json = JObject.FromObject(new {
                 id = content.Id,
-                key = content.GetKey(),
+                key = content.Key,
                 name = content.Name,
                 url = content.Url,
-                type = content.DocumentTypeAlias,
-                createDate = new EssentialsTime(content.CreateDate, TimeZoneInfo.Local),
-                updateDate = new EssentialsTime(content.UpdateDate, TimeZoneInfo.Local)
+                type = content.ContentType.Alias,
+                createDate = EssentialsTime.FromTicks(content.CreateDate.Ticks, TimeZoneInfo.Local),
+                updateDate = EssentialsTime.FromTicks(content.UpdateDate.Ticks, TimeZoneInfo.Local)
             });
 
             if (content.Level < maxLevel) {
@@ -361,8 +380,8 @@ namespace Limbo.Umbraco.MigrationsApi {
                 key = member.Key,
                 name = member.Name,
                 type = member.ContentTypeAlias,
-                createDate = new EssentialsTime(member.CreateDate, TimeZoneInfo.Local),
-                updateDate = new EssentialsTime(member.UpdateDate, TimeZoneInfo.Local)
+                createDate = EssentialsTime.FromTicks(member.CreateDate.Ticks, TimeZoneInfo.Local),
+                updateDate = EssentialsTime.FromTicks(member.UpdateDate.Ticks, TimeZoneInfo.Local)
             });
 
             json["properties"] = MapProperties(member);
@@ -385,35 +404,7 @@ namespace Limbo.Umbraco.MigrationsApi {
 
         private JToken MapProperty(IPublishedProperty property) {
 
-            object propertyValue = property.DataValue;
-
-            if (propertyValue is string strValue) {
-                strValue = strValue.Trim();
-                if (strValue.StartsWith("{") && strValue.EndsWith("}") && JsonUtils.TryParseJsonObject(strValue, out JObject objectValue)) {
-                    propertyValue = objectValue;
-                } else if (strValue.StartsWith("[") && strValue.EndsWith("]") && JsonUtils.TryParseJsonArray(strValue, out JArray arrayValue)) {
-                    propertyValue = arrayValue;
-                }
-            } else if (propertyValue is DateTime dateTime) {
-                propertyValue = new EssentialsTime(dateTime, TimeZoneInfo.Local);
-            }
-
-            var propertyType = (PublishedPropertyType) property
-                .GetType()
-                .GetField("PropertyType", BindingFlags.Public | BindingFlags.Instance)?
-                .GetValue(property);
-
-            return JToken.FromObject(new {
-                alias = property.PropertyTypeAlias,
-                editorAlias = propertyType?.PropertyEditorAlias,
-                value = propertyValue
-            });
-
-        }
-
-        private JToken MapProperty(Property property) {
-
-            object propertyValue = property.Value;
+            object propertyValue = property.GetSourceValue();
 
             if (propertyValue is string strValue) {
                 strValue = strValue.Trim();
@@ -428,7 +419,30 @@ namespace Limbo.Umbraco.MigrationsApi {
 
             return JToken.FromObject(new {
                 alias = property.Alias,
-                editorAlias = property.PropertyType.Alias,
+                editorAlias = property.PropertyType.EditorAlias,
+                value = propertyValue
+            });
+
+        }
+
+        private JToken MapProperty(Property property) {
+
+            object propertyValue = property.GetValue();
+
+            if (propertyValue is string strValue) {
+                strValue = strValue.Trim();
+                if (strValue.StartsWith("{") && strValue.EndsWith("}") && JsonUtils.TryParseJsonObject(strValue, out JObject objectValue)) {
+                    propertyValue = objectValue;
+                } else if (strValue.StartsWith("[") && strValue.EndsWith("]") && JsonUtils.TryParseJsonArray(strValue, out JArray arrayValue)) {
+                    propertyValue = arrayValue;
+                }
+            } else if (propertyValue is DateTime dateTime) {
+                propertyValue = new EssentialsTime(dateTime, TimeZoneInfo.Local);
+            }
+
+            return JToken.FromObject(new {
+                alias = property.Alias,
+                editorAlias = property.PropertyType.PropertyEditorAlias,
                 value = propertyValue
             });
 
@@ -439,7 +453,7 @@ namespace Limbo.Umbraco.MigrationsApi {
             JObject properties = new JObject();
 
             foreach (IPublishedProperty property in content.Properties) {
-                properties.Add(property.PropertyTypeAlias, MapProperty(property));
+                properties.Add(property.Alias, MapProperty(property));
             }
 
             return properties;

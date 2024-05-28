@@ -3,11 +3,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
-    <VersionPrefix>1.0.2</VersionPrefix>
+    <VersionPrefix>8.0.0</VersionPrefix>
     <VersionSuffix Condition="'$(Configuration)'=='Debug'">build$([System.DateTime]::UtcNow.ToString(`yyyyMMddHHmm`))</VersionSuffix>
     <Company>Limbo</Company>
     <Authors>Anders Bjerner</Authors>
@@ -30,10 +30,11 @@
   <!-- Include dependencies -->
   <ItemGroup>
     <Reference Include="System.Web" />
-    <PackageReference Include="Skybrud.Essentials" Version="1.1.50" />
-    <PackageReference Include="Skybrud.Essentials.Http" Version="1.1.4" />
+    <PackageReference Include="Skybrud.Essentials" Version="1.1.57" />
+    <PackageReference Include="Skybrud.Essentials.Http" Version="1.2.0" />
     <PackageReference Include="Skybrud.WebApi.Json" Version="1.1.0" />
-    <PackageReference Include="UmbracoCms.Core" Version="[7.7.0,7.999)" />
+    <PackageReference Include="UmbracoCms.Core" Version="[8.6.0,9.0)" />
+    <PackageReference Include="UmbracoCms.Web" Version="[8.6.0,9.0)" />
   </ItemGroup>
 
   <!-- Include package icon and README for the NuGet -->
