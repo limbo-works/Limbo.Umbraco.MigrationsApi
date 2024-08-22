@@ -347,6 +347,7 @@ namespace Limbo.Umbraco.MigrationsApi {
                 name = content.Name,
                 url = content.Url,
                 type = content.ContentType.Alias,
+                sortOrder = content.SortOrder,
                 createDate = EssentialsTime.FromTicks(content.CreateDate.Ticks, TimeZoneInfo.Local),
                 updateDate = EssentialsTime.FromTicks(content.UpdateDate.Ticks, TimeZoneInfo.Local)
             });
