@@ -415,7 +415,8 @@ namespace Limbo.Umbraco.MigrationsApi {
                     propertyValue = arrayValue;
                 }
             } else if (propertyValue is DateTime dateTime) {
-                propertyValue = new EssentialsTime(dateTime, TimeZoneInfo.Local);
+                // Adjust for Umbraco/NPoco returning the incorrect kind
+                propertyValue = EssentialsTime.FromTicks(dateTime.Ticks, TimeZoneInfo.Local);
             }
 
             return JToken.FromObject(new {
@@ -438,7 +439,8 @@ namespace Limbo.Umbraco.MigrationsApi {
                     propertyValue = arrayValue;
                 }
             } else if (propertyValue is DateTime dateTime) {
-                propertyValue = new EssentialsTime(dateTime, TimeZoneInfo.Local);
+                // Adjust for Umbraco/NPoco returning the incorrect kind
+                propertyValue = EssentialsTime.FromTicks(dateTime.Ticks, TimeZoneInfo.Local);
             }
 
             return JToken.FromObject(new {
