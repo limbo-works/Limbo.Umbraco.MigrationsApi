@@ -12,6 +12,7 @@ using Skybrud.Essentials.Strings;
 using Skybrud.Essentials.Strings.Extensions;
 using Skybrud.Essentials.Time;
 using Skybrud.WebApi.Json;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Services;
@@ -82,6 +83,14 @@ namespace Limbo.Umbraco.MigrationsApi {
             if (!HasAccess()) return Unauthorized();
             IPublishedContent media = Umbraco.Media(key);
             return media == null ? NotFound() : MapMedia(media, MaxLevel);
+        }
+
+        [HttpGet]
+        public object GetMediaByPath(string path) {
+            if (!HasAccess()) return Unauthorized();
+            IMedia media = Current.Services.MediaService.GetMediaByPath(path);
+            IPublishedContent published = media == null ? null : Umbraco.Media(media.Key);
+            return media == null ? NotFound() : MapMedia(published, MaxLevel);
         }
 
         [HttpGet]
