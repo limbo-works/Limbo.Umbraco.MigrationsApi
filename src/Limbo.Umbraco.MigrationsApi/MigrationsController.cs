@@ -23,9 +23,10 @@ namespace Limbo.Umbraco.MigrationsApi {
 
     [JsonOnlyConfiguration]
     [PluginController("Limbo")]
-    public class MigrationsController : UmbracoApiController {
+    public partial class MigrationsController : UmbracoApiController {
 
         private readonly IContentTypeService _contentTypeService;
+        private readonly IDataTypeService _dataTypeService;
         private readonly IMediaTypeService _mediaTypeService;
         private readonly IMemberTypeService _memberTypeService;
         private readonly IMemberService _memberService;
@@ -34,8 +35,9 @@ namespace Limbo.Umbraco.MigrationsApi {
 
         #region Constructors
 
-        public MigrationsController(IContentTypeService contentTypeService, IMediaTypeService mediaTypeService, IMemberTypeService memberTypeService, IMemberService memberService) {
+        public MigrationsController(IContentTypeService contentTypeService, IDataTypeService dataTypeService, IMediaTypeService mediaTypeService, IMemberTypeService memberTypeService, IMemberService memberService) {
             _contentTypeService = contentTypeService;
+            _dataTypeService = dataTypeService;
             _mediaTypeService = mediaTypeService;
             _memberTypeService = memberTypeService;
             _memberService = memberService;
