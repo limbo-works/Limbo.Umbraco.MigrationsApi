@@ -1,0 +1,71 @@
+﻿using System;
+using System.Linq;
+using System.Web.Configuration;
+using System.Web.Http;
+using Limbo.Umbraco.MigrationsApi.Models.Users;
+using Skybrud.Essentials.Guids;
+using Skybrud.Essentials.Strings.Extensions;
+using Umbraco.Core.Composing;
+using Umbraco.Core.Models.Membership;
+using Umbraco.Core.Services;
+using Umbraco.Web.Mvc;
+
+namespace Limbo.Umbraco.MigrationsApi.Controllers {
+
+    [PluginController("LimboMigrations")]
+    public class MigrationsUsersController : MigrationsControllerBase {
+
+        private readonly IUserService _userService = Current.Services.UserService;
+
+        [HttpGet]
+        [Route("api/limbo/migrations/users")]
+        public object GetUsers() {
+
+            if (!HasAccess(out string reason)) return Unauthorized(reason);
+
+            return _userService
+                .GetAll(0, int.MaxValue, out long _)
+                .OrderBy(x => x.Id)
+                .Select(x => new ApiUser(x));
+
+        }
+
+        [HttpGet]
+        [Route("api/limbo/migrations/users/{id:int}")]
+        public object GetUserById(int id) {
+
+            if (!HasAccess(out string reason)) return Unauthorized(reason);
+
+            IUser user = _userService.GetUserById(id);
+            return user is null ? NotFound() : (object) new ApiUser(user);
+
+        }
+
+        [HttpGet]
+        [Route("api/limbo/migrations/users/{key:guid}")]
+        public object GetUserById(Guid key) {
+
+            if (!HasAccess(out string reason)) return Unauthorized(reason);
+
+            int userId = GuidUtils.ToInt32(key);
+
+            IUser user = _userService.GetUserById(userId);
+            return user is null ? NotFound() : (object) new ApiUser(user);
+
+        }
+
+        protected override bool HasAccess(out string rejectionReason) {
+
+            if (!base.HasAccess(out rejectionReason)) return false;
+
+            bool enabled = WebConfigurationManager.AppSettings["LimboMigrationsApiUsersEnabled"].ToBoolean();
+            if (enabled) return true;
+
+            rejectionReason = "Users controller has not been enabled.";
+            return false;
+
+        }
+
+    }
+
+}
