@@ -37,16 +37,16 @@ Adds an API to Umbraco 8 for exporting content, media and members. The API can t
 
 ### Umbraco 8
 
-Via  [**NuGet**](https://www.nuget.org/packages/Limbo.Umbraco.MigrationsApi/8.0.0):
+Via  [**NuGet**](https://www.nuget.org/packages/Limbo.Umbraco.MigrationsApi/8.0.1):
 
 ```
-dotnet add package Limbo.Umbraco.MigrationsApi --version 8.0.0
+dotnet add package Limbo.Umbraco.MigrationsApi --version 8.0.1
 ```
 
 or:
 
 ```
-Install-Package Limbo.Umbraco.MigrationsApi -Version 8.0.0
+Install-Package Limbo.Umbraco.MigrationsApi -Version 8.0.1
 ```
 
 ### Other versions of Umbraco
