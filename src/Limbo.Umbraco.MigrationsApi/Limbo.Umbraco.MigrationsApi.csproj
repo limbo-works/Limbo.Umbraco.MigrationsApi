@@ -30,8 +30,8 @@
   <!-- Include dependencies -->
   <ItemGroup>
     <Reference Include="System.Web" />
-    <PackageReference Include="Skybrud.Essentials" Version="1.1.57" />
-    <PackageReference Include="Skybrud.Essentials.Http" Version="1.2.0" />
+    <PackageReference Include="Skybrud.Essentials" Version="1.1.58" />
+    <PackageReference Include="Skybrud.Essentials.Http" Version="1.2.1" />
     <PackageReference Include="Skybrud.WebApi.Json" Version="1.1.0" />
     <PackageReference Include="UmbracoCms.Core" Version="[8.6.0,9.0)" />
     <PackageReference Include="UmbracoCms.Web" Version="[8.6.0,9.0)" />
