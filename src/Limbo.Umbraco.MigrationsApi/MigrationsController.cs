@@ -213,6 +213,7 @@ namespace Limbo.Umbraco.MigrationsApi {
                 name = contentType.Name,
                 icon = contentType.Icon,
                 tabs = contentType.CompositionPropertyGroups.Select(MapPropertyGroup),
+                element = contentType.IsElement,
                 defaultTemplate = MapTemplateItem(contentType.DefaultTemplate),
                 allowedAsRoot = contentType.AllowedAsRoot,
                 allowedContentTypes = contentType.AllowedContentTypes.Select(MapContentTypeItem),
