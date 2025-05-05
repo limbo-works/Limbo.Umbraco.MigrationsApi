@@ -217,6 +217,7 @@ namespace Limbo.Umbraco.MigrationsApi {
                 allowedAsRoot = contentType.AllowedAsRoot,
                 allowedContentTypes = contentType.AllowedContentTypes.Select(MapContentTypeItem),
                 allowedTemplate = contentType.AllowedTemplates.Select(MapTemplateItem),
+                allowedTemplates = contentType.AllowedTemplates.Select(MapTemplateItem),
                 compositions = contentType
                     .CompositionIds()
                     .Select(x => _contentTypeService.Get(x))
