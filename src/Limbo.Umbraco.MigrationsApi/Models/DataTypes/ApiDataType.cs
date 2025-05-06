@@ -15,6 +15,9 @@ namespace Limbo.Umbraco.MigrationsApi.Models.DataTypes {
         [JsonProperty("key")]
         public Guid Key { get; }
 
+        [JsonProperty("path")]
+        public string Path { get; }
+
         [JsonProperty("name")]
         public string Name { get; }
 
@@ -39,6 +42,7 @@ namespace Limbo.Umbraco.MigrationsApi.Models.DataTypes {
         public ApiDataType(IDataType dataType) {
             Id = dataType.Id;
             Key = dataType.Key;
+            Path = dataType.Path;
             Name = dataType.Name;
             DbType = dataType.DatabaseType.ToKebabCase();
             CreateDate = EssentialsTime.FromTicks(dataType.CreateDate.Ticks, TimeZoneInfo.Local);
