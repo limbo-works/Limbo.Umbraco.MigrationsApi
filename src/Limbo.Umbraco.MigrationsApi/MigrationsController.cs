@@ -220,7 +220,6 @@ namespace Limbo.Umbraco.MigrationsApi {
                 defaultTemplate = MapTemplateItem(contentType.DefaultTemplate),
                 allowedAsRoot = contentType.AllowedAsRoot,
                 allowedContentTypes = contentType.AllowedContentTypes.Select(MapContentTypeItem),
-                allowedTemplate = contentType.AllowedTemplates.Select(MapTemplateItem),
                 allowedTemplates = contentType.AllowedTemplates.Select(MapTemplateItem),
                 compositions = contentType
                     .CompositionIds()
