@@ -15,7 +15,6 @@ using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Attributes;
 using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Extensions;
-using System.Linq;
 
 namespace Limbo.Umbraco.MigrationsApi;
 
@@ -65,12 +64,12 @@ public partial class MigrationsController : UmbracoApiController {
     }
 
     [HttpGet]
-    public IActionResult GetContentById(int id) { // Change 2
+    public IActionResult GetContentById(int id) {
         if (!HasAccess()) return Unauthorized("Access Denied.");
         if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
             return Problem("Could not obtain Umbraco Context");
         }
-        IPublishedContent content = umbracoContext.Content.GetById(id); // Change 4
+        IPublishedContent? content = umbracoContext.Content?.GetById(id);
         if (content == null) return NotFound();
         return Ok(MapContent(content, GetMaxLevelFromQuery()));
     }
@@ -81,7 +80,7 @@ public partial class MigrationsController : UmbracoApiController {
         if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
             return Problem("Could not obtain Umbraco Context");
         }
-        IPublishedContent content = umbracoContext.Content.GetById(key);
+        IPublishedContent? content = umbracoContext.Content?.GetById(key);
         return Ok(content == null ? NotFound() : MapContent(content, GetMaxLevelFromQuery()));
     }
 
@@ -91,7 +90,7 @@ public partial class MigrationsController : UmbracoApiController {
         if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
             return Problem("Could not obtain Umbraco Context");
         }
-        return Ok(umbracoContext.Media.GetAtRoot(false, null).Select(x => MapMediaItem(x, GetMaxLevelFromQuery())));
+        return Ok(umbracoContext.Media?.GetAtRoot(false, null).Select(x => MapMediaItem(x, GetMaxLevelFromQuery())));
     }
 
     [HttpGet]
@@ -100,7 +99,7 @@ public partial class MigrationsController : UmbracoApiController {
         if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
             return Problem("Could not obtain Umbraco Context");
         }
-        IPublishedContent media = umbracoContext.Media.GetById(id);
+        IPublishedContent? media = umbracoContext.Media?.GetById(id);
         return Ok(media == null ? NotFound() : MapMedia(media, GetMaxLevelFromQuery()));
     }
 
@@ -110,7 +109,7 @@ public partial class MigrationsController : UmbracoApiController {
         if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
             return Problem("Could not obtain Umbraco Context");
         }
-        IPublishedContent media = umbracoContext.Media.GetById(key);
+        IPublishedContent? media = umbracoContext.Media?.GetById(key);
         return Ok(media == null ? NotFound() : MapMedia(media, GetMaxLevelFromQuery()));
     }
 
@@ -120,22 +119,22 @@ public partial class MigrationsController : UmbracoApiController {
         if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
             return Problem("Could not obtain Umbraco Context");
         }
-        IMedia media = _mediaService.GetMediaByPath(path);
-        IPublishedContent published = media == null ? null : umbracoContext.Media.GetById(media.Key);
+        IMedia? media = _mediaService.GetMediaByPath(path);
+        IPublishedContent? published = media == null ? null : umbracoContext.Media?.GetById(media.Key);
         return Ok(media == null ? NotFound() : MapMedia(published, GetMaxLevelFromQuery()));
     }
 
     [HttpGet]
     public object GetMemberById(int id) {
         if (!HasAccess()) return Unauthorized();
-        IMember member = _memberService.GetById(id);
+        IMember? member = _memberService.GetById(id);
         return member == null ? NotFound() : MapMember(member);
     }
 
     [HttpGet]
     public object GetMemberByKey(Guid key) {
         if (!HasAccess()) return Unauthorized();
-        IMember member = _memberService.GetByKey(key);
+        IMember? member = _memberService.GetByKey(key);
         return member == null ? NotFound() : MapMember(member);
     }
 
