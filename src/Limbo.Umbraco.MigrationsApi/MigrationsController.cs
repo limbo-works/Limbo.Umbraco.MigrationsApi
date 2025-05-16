@@ -14,8 +14,8 @@ using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Attributes;
 using Umbraco.Cms.Web.Common.Controllers;
-using static Umbraco.Cms.Core.Constants.Conventions;
-
+using Umbraco.Extensions;
+using System.Linq;
 
 namespace Limbo.Umbraco.MigrationsApi;
 
@@ -322,7 +322,7 @@ public partial class MigrationsController : UmbracoApiController {
             key = propertyGroup.Key,
             name = propertyGroup.Name,
             sortOrder = propertyGroup.SortOrder,
-            properties = propertyGroup.PropertyTypes.Select(MapPropertyType)
+            properties = propertyGroup.PropertyTypes.Cast<PropertyType>().Select(MapPropertyType)
         };
     }
 
@@ -340,12 +340,15 @@ public partial class MigrationsController : UmbracoApiController {
         };
     }
 
-    private static bool HasAccess() {
+    private bool HasAccess() {
 
-        string expectedApiKey = WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
+        string expectedApiKey = "temp"; //WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
         if (string.IsNullOrWhiteSpace(expectedApiKey)) return false;
 
-        string auth = HttpContext.Current.Request.Headers["Authorization"];
+        var httpRequest = _httpContextAccessor.HttpContext?.Request;
+        if (httpRequest == null) return false;
+
+        string auth = httpRequest.Headers["Authorization"];
         if (!RegexUtils.IsMatch(auth ?? string.Empty, "Basic (.+?)$", out Match m)) return false;
 
         try {
@@ -364,7 +367,7 @@ public partial class MigrationsController : UmbracoApiController {
             id = media.Id,
             key = media.Key,
             name = media.Name,
-            url = media.Url,
+            url = media.Url(),
             type = media.ContentType.Alias,
             createDate = EssentialsTime.FromTicks(media.CreateDate.Ticks, TimeZoneInfo.Local),
             updateDate = EssentialsTime.FromTicks(media.UpdateDate.Ticks, TimeZoneInfo.Local)
@@ -390,7 +393,7 @@ public partial class MigrationsController : UmbracoApiController {
             id = content.Id,
             key = content.Key,
             name = content.Name,
-            url = content.Url,
+            url = content.Url(),
             type = content.ContentType.Alias,
             sortOrder = content.SortOrder,
             createDate = EssentialsTime.FromTicks(content.CreateDate.Ticks, TimeZoneInfo.Local),
