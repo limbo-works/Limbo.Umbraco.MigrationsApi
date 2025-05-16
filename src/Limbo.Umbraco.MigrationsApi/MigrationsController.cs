@@ -14,6 +14,7 @@ using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Attributes;
 using Umbraco.Cms.Web.Common.Controllers;
+using static Umbraco.Cms.Core.Constants.Conventions;
 
 
 namespace Limbo.Umbraco.MigrationsApi;
@@ -27,6 +28,7 @@ public partial class MigrationsController : UmbracoApiController {
     private readonly IMediaTypeService _mediaTypeService;
     private readonly IMemberTypeService _memberTypeService;
     private readonly IMemberService _memberService;
+    private readonly IMediaService _mediaService;
     private readonly IUmbracoContextAccessor _umbracoContextAccessor;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -36,12 +38,13 @@ public partial class MigrationsController : UmbracoApiController {
 
     #region Constructors
 
-    public MigrationsController(IContentTypeService contentTypeService, IDataTypeService dataTypeService, IMediaTypeService mediaTypeService, IMemberTypeService memberTypeService, IMemberService memberService, IUmbracoContextAccessor umbracoContextAccessor, IHttpContextAccessor httpContextAccessor) {
+    public MigrationsController(IContentTypeService contentTypeService, IDataTypeService dataTypeService, IMediaTypeService mediaTypeService, IMemberTypeService memberTypeService, IMemberService memberService, IMediaService mediaService, IUmbracoContextAccessor umbracoContextAccessor, IHttpContextAccessor httpContextAccessor) {
         _contentTypeService = contentTypeService;
         _dataTypeService = dataTypeService;
         _mediaTypeService = mediaTypeService;
         _memberTypeService = memberTypeService;
         _memberService = memberService;
+        _mediaService = mediaService;
         _umbracoContextAccessor = umbracoContextAccessor;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -73,38 +76,53 @@ public partial class MigrationsController : UmbracoApiController {
     }
 
     [HttpGet]
-    public object GetContentByKey(Guid key) {
-        if (!HasAccess()) return Unauthorized();
-        IPublishedContent content = Umbraco.Content(key);
-        return content == null ? NotFound() : MapContent(content, GetMaxLevelFromQuery());
+    public IActionResult GetContentByKey(Guid key) {
+        if (!HasAccess()) return Unauthorized("Access Denied.");
+        if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
+            return Problem("Could not obtain Umbraco Context");
+        }
+        IPublishedContent content = umbracoContext.Content.GetById(key);
+        return Ok(content == null ? NotFound() : MapContent(content, GetMaxLevelFromQuery()));
     }
 
     [HttpGet]
-    public object GetMediaAtRoot() {
-        if (!HasAccess()) return Unauthorized();
-        return Umbraco.MediaAtRoot().Select(x => MapMediaItem(x, GetMaxLevelFromQuery()));
+    public IActionResult GetMediaAtRoot() {
+        if (!HasAccess()) return Unauthorized("Access Denied.");
+        if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
+            return Problem("Could not obtain Umbraco Context");
+        }
+        return Ok(umbracoContext.Media.GetAtRoot(false, null).Select(x => MapMediaItem(x, GetMaxLevelFromQuery())));
     }
 
     [HttpGet]
-    public object GetMediaById(int id) {
-        if (!HasAccess()) return Unauthorized();
-        IPublishedContent media = Umbraco.Media(id);
-        return media == null ? NotFound() : MapMedia(media, GetMaxLevelFromQuery());
+    public IActionResult GetMediaById(int id) {
+        if (!HasAccess()) return Unauthorized("Access Denied.");
+        if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
+            return Problem("Could not obtain Umbraco Context");
+        }
+        IPublishedContent media = umbracoContext.Media.GetById(id);
+        return Ok(media == null ? NotFound() : MapMedia(media, GetMaxLevelFromQuery()));
     }
 
     [HttpGet]
-    public object GetMediaByKey(Guid key) {
-        if (!HasAccess()) return Unauthorized();
-        IPublishedContent media = Umbraco.Media(key);
-        return media == null ? NotFound() : MapMedia(media, GetMaxLevelFromQuery());
+    public IActionResult GetMediaByKey(Guid key) {
+        if (!HasAccess()) return Unauthorized("Access Denied.");
+        if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
+            return Problem("Could not obtain Umbraco Context");
+        }
+        IPublishedContent media = umbracoContext.Media.GetById(key);
+        return Ok(media == null ? NotFound() : MapMedia(media, GetMaxLevelFromQuery()));
     }
 
     [HttpGet]
-    public object GetMediaByPath(string path) {
-        if (!HasAccess()) return Unauthorized();
-        IMedia media = Current.Services.MediaService.GetMediaByPath(path);
-        IPublishedContent published = media == null ? null : Umbraco.Media(media.Key);
-        return media == null ? NotFound() : MapMedia(published, GetMaxLevelFromQuery());
+    public IActionResult GetMediaByPath(string path) {
+        if (!HasAccess()) return Unauthorized("Access Denied.");
+        if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
+            return Problem("Could not obtain Umbraco Context");
+        }
+        IMedia media = _mediaService.GetMediaByPath(path);
+        IPublishedContent published = media == null ? null : umbracoContext.Media.GetById(media.Key);
+        return Ok(media == null ? NotFound() : MapMedia(published, GetMaxLevelFromQuery()));
     }
 
     [HttpGet]
