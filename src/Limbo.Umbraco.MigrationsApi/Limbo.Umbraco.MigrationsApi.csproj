@@ -20,6 +20,7 @@
 	<ItemGroup>
 		<Reference Include="System.Web" />
 		<PackageReference Include="Skybrud.Essentials" Version="1.1.59" />
+		<PackageReference Include="Skybrud.Essentials.AspNetCore" Version="1.0.1" />
 		<PackageReference Include="Skybrud.Essentials.Http" Version="1.2.2" />
 		<PackageReference Include="Skybrud.WebApi.Json" Version="1.1.0" />
 		<PackageReference Include="Umbraco.Cms.Core" Version="[10.0.0,10.999)" />

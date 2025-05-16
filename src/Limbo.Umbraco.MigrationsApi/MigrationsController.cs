@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using Skybrud.Essentials.AspNetCore.Json.Newtonsoft.Attributes;
 using Skybrud.Essentials.Json.Newtonsoft;
 using Skybrud.Essentials.Security;
 using Skybrud.Essentials.Strings;
 using Skybrud.Essentials.Strings.Extensions;
 using Skybrud.Essentials.Time;
-using Skybrud.WebApi.Json;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Services;
@@ -18,7 +18,7 @@ using Umbraco.Extensions;
 
 namespace Limbo.Umbraco.MigrationsApi;
 
-[JsonOnlyConfiguration]
+[NewtonsoftJsonOnlyConfigurationAttribute]
 [PluginController("Limbo")]
 public partial class MigrationsController : UmbracoApiController {
 
@@ -53,14 +53,14 @@ public partial class MigrationsController : UmbracoApiController {
     #region Public API methods
 
     [HttpGet]
-    public IActionResult GetContentAtRoot() {
+    public object? GetContentAtRoot() {
         if (!HasAccess()) return Unauthorized("Access Denied.");
         if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
             return Problem("Could not obtain Umbraco Context");
         }
         // Change 4
-        var content = umbracoContext.Content.GetAtRoot().Select(x => MapContentItem(x, GetMaxLevelFromQuery()));
-        return Ok(content);
+        var content = umbracoContext.Content?.GetAtRoot().Select(x => MapContentItem(x, GetMaxLevelFromQuery()));
+        return content;
     }
 
     [HttpGet]

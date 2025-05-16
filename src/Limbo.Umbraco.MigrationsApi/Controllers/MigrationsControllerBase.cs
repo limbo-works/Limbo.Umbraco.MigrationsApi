@@ -2,15 +2,15 @@
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Skybrud.Essentials.AspNetCore.Json.Newtonsoft.Attributes;
 using Skybrud.Essentials.Security;
 using Skybrud.Essentials.Strings;
-using Skybrud.WebApi.Json;
 using Skybrud.WebApi.Json.Meta;
 using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Limbo.Umbraco.MigrationsApi.Controllers;
 
-[JsonOnlyConfiguration]
+[NewtonsoftJsonOnlyConfigurationAttribute]
 public abstract class MigrationsControllerBase : UmbracoApiController {
 
     private readonly string _apiKey;
