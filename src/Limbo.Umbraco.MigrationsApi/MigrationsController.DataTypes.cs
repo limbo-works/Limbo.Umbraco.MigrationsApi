@@ -1,33 +1,31 @@
-﻿using System;
-using System.Linq;
-using System.Web.Http;
-using Limbo.Umbraco.MigrationsApi.Models.DataTypes;
-using Umbraco.Core.Models;
+﻿using Limbo.Umbraco.MigrationsApi.Models.DataTypes;
+using Microsoft.AspNetCore.Mvc;
+using Umbraco.Cms.Core.Models;
 
 namespace Limbo.Umbraco.MigrationsApi;
 
 public partial class MigrationsController {
 
     [HttpGet]
-    public object GetDataTypeById(int id) {
-        if (!HasAccess()) return Unauthorized();
+    public IActionResult GetDataTypeById(int id) {
+        if (!HasAccess()) return Unauthorized("Access Denied.");
         IDataType dataType = _dataTypeService.GetDataType(id);
-        return MapDataType(dataType);
+        return Ok(MapDataType(dataType));
     }
 
     [HttpGet]
-    public object GetDataTypeByKey(Guid key) {
-        if (!HasAccess()) return Unauthorized();
+    public IActionResult GetDataTypeByKey(Guid key) {
+        if (!HasAccess()) return Unauthorized("Access Denied.");
         IDataType dataType = _dataTypeService.GetDataType(key);
-        return MapDataType(dataType);
+        return Ok(MapDataType(dataType));
     }
 
     [HttpGet]
-    public object GetDataTypes() {
-        if (!HasAccess()) return Unauthorized();
-        return _dataTypeService
+    public IActionResult GetDataTypes() {
+        if (!HasAccess()) return Unauthorized("Access Denied.");
+        return Ok(_dataTypeService
             .GetAll()
-            .Select(MapDataType);
+            .Select(MapDataType));
     }
 
     private static object MapDataType(IDataType dataType) {

@@ -1,10 +1,12 @@
 ﻿using System.Net;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Skybrud.Essentials.Security;
 using Skybrud.Essentials.Strings;
-using Skybrud.Essentials.Strings.Extensions;
 using Skybrud.WebApi.Json;
 using Skybrud.WebApi.Json.Meta;
+using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Limbo.Umbraco.MigrationsApi.Controllers;
 
@@ -13,13 +15,17 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
 
     private readonly string _apiKey;
     private readonly HashSet<string> _allowList;
+    protected readonly IHttpContextAccessor _httpContextAccessor;
 
     protected MigrationsControllerBase() {
-        _apiKey = WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
-        _allowList = WebConfigurationManager
-            .AppSettings["LimboMigrationsApiAllowList"]
-            .ToStringArray()
-            .ToHashSet();
+        _apiKey = "temp"; //WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
+        _allowList = new HashSet<string>(); //WebConfigurationManager.AppSettings["LimboMigrationsApiAllowList"].ToStringArray().ToHashSet();
+    }
+
+    protected MigrationsControllerBase(IHttpContextAccessor httpContextAccessor) {
+        _httpContextAccessor = httpContextAccessor;
+        _apiKey = "temp"; //WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
+        _allowList = new HashSet<string>(); //WebConfigurationManager.AppSettings["LimboMigrationsApiAllowList"].ToStringArray().ToHashSet();
     }
 
     protected virtual bool HasAccess(out string rejectionReason) {
@@ -29,7 +35,13 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
             return false;
         }
 
-        string auth = HttpContext.Current.Request.Headers["Authorization"];
+        var httpRequest = _httpContextAccessor.HttpContext?.Request;
+        if (httpRequest == null) {
+            rejectionReason = "Http context not available.";
+            return false;
+        }
+
+        string auth = httpRequest.Headers["Authorization"];
         if (!RegexUtils.IsMatch(auth ?? string.Empty, "Basic (.+?)$", out Match m)) {
             rejectionReason = "No or invalid API key specified in request.";
             return false;
@@ -45,14 +57,20 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
             return false;
         }
 
-        string addr = HttpContext.Current.Request.ServerVariables.Get("REMOTE_ADDR");
+        var httpConnection = _httpContextAccessor.HttpContext?.Connection;
+        if (httpConnection == null) {
+            rejectionReason = "Http context not available.";
+            return false;
+        }
+
+        string addr = httpConnection.RemoteIpAddress?.ToString() + "";
         if (string.IsNullOrWhiteSpace(addr)) {
-            rejectionReason = "Meh";
+            rejectionReason = "Meh 2";
             return false;
         }
 
         if (_allowList.Count == 0 || _allowList.Contains(addr)) {
-            rejectionReason = null;
+            rejectionReason = "Meh 3";
             return true;
         }
 
@@ -61,9 +79,9 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
 
     }
 
-    protected IHttpActionResult Unauthorized(string message) {
+    protected IActionResult Unauthorized(string message) {
         var body = JsonMetaResponse.GetError(HttpStatusCode.Unauthorized, message);
-        return Content(HttpStatusCode.Unauthorized, body);
+        return StatusCode((int) HttpStatusCode.Unauthorized, body);
     }
 
 }

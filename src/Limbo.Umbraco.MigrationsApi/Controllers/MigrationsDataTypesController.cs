@@ -1,5 +1,5 @@
-﻿using System.Web.Http;
-using Limbo.Umbraco.MigrationsApi.Models.DataTypes;
+﻿using Limbo.Umbraco.MigrationsApi.Models.DataTypes;
+using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.Common.Attributes;
