@@ -19,6 +19,7 @@ public class MigrationsDataTypesController : MigrationsControllerBase {
 
     [HttpGet]
     [Route("api/limbo/migrations/dataTypes")]
+    [Route("umbraco/Limbo/Migrations/GetDataTypes")]
     public object GetDataTypes() {
         if (!HasAccess(out string reason)) return Unauthorized(reason);
         return _dataTypeService
@@ -28,18 +29,20 @@ public class MigrationsDataTypesController : MigrationsControllerBase {
 
     [HttpGet]
     [Route("api/limbo/migrations/dataTypes/{id:int}")]
+    [Route("umbraco/Limbo/Migrations/GetDataTypeById")]
     public object GetDataTypeById(int id) {
         if (!HasAccess(out string reason)) return Unauthorized(reason);
         IDataType? dataType = _dataTypeService.GetDataType(id);
-        return dataType is null ? NotFound() : new ApiDataType(dataType);
+        return dataType is null ? NotFound("Data type not found.") : new ApiDataType(dataType);
     }
 
     [HttpGet]
     [Route("api/limbo/migrations/dataTypes/{key:guid}")]
+    [Route("umbraco/Limbo/Migrations/GetDataTypeByKey")]
     public object GetDataTypeByKey(Guid key) {
         if (!HasAccess(out string reason)) return Unauthorized(reason);
         IDataType? dataType = _dataTypeService.GetDataType(key);
-        return dataType is null ? NotFound() : new ApiDataType(dataType);
+        return dataType is null ? NotFound("Data type not found.") : new ApiDataType(dataType);
     }
 
 }

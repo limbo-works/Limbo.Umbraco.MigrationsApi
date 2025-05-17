@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Limbo.Umbraco.MigrationsApi.Models.Settings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -61,9 +60,12 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
 
     }
 
+    protected IActionResult NotFound(string message) {
+        return NewtonsoftJsonResult.NotFound(message);
+    }
+
     protected IActionResult Unauthorized(string message) {
-        NewtonsoftJsonResult body = NewtonsoftJsonResult.Unauthorized(message);
-        return StatusCode((int) HttpStatusCode.Unauthorized, body);
+        return NewtonsoftJsonResult.Unauthorized(message);
     }
 
 }

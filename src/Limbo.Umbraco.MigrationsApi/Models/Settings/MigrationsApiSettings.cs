@@ -6,6 +6,9 @@ public class MigrationsApiSettings {
 
     public HashSet<string> AllowList { get; set; } = [];
 
-    public MigrationsApiUserSettings Users { get; set; } = new();
+    public MigrationsApiMembersSettings Members { get; set; } = new();
+
+
+    public MigrationsApiUsersSettings Users { get; set; } = new();
 
 }

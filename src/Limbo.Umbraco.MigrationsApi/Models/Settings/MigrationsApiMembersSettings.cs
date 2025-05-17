@@ -1,6 +1,6 @@
 ﻿namespace Limbo.Umbraco.MigrationsApi.Models.Settings;
 
-public class MigrationsApiUserSettings {
+public class MigrationsApiMembersSettings {
 
     public bool Enabled { get; set; } = false;
 

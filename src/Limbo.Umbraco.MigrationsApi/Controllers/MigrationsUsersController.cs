@@ -38,7 +38,7 @@ public class MigrationsUsersController : MigrationsControllerBase {
         if (!HasAccess(out string reason)) return Unauthorized(reason);
 
         IUser? user = _userService.GetUserById(id);
-        return user is null ? NotFound() : new ApiUser(user);
+        return user is null ? NotFound("User not found.") : new ApiUser(user);
 
     }
 
@@ -51,7 +51,7 @@ public class MigrationsUsersController : MigrationsControllerBase {
         int userId = GuidUtils.ToInt32(key);
 
         IUser? user = _userService.GetUserById(userId);
-        return user is null ? NotFound() : new ApiUser(user);
+        return user is null ? NotFound("User not found.") : new ApiUser(user);
 
     }
 
