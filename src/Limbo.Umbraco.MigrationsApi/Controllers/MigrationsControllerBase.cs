@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Text.RegularExpressions;
+using Limbo.Umbraco.MigrationsApi.Models.Settings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Skybrud.Essentials.AspNetCore.Json.Newtonsoft;
 using Skybrud.Essentials.AspNetCore.Json.Newtonsoft.Attributes;
 using Skybrud.Essentials.Security;
@@ -12,17 +14,17 @@ namespace Limbo.Umbraco.MigrationsApi.Controllers;
 [NewtonsoftJsonOnlyConfiguration]
 public abstract class MigrationsControllerBase : UmbracoApiController {
 
-    private readonly string _apiKey;
-    private readonly HashSet<string> _allowList;
+    private readonly IOptions<MigrationsApiSettings> _options;
 
-    protected MigrationsControllerBase() {
-        _apiKey = "temp"; //WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
-        _allowList = new HashSet<string>(); //WebConfigurationManager.AppSettings["LimboMigrationsApiAllowList"].ToStringArray().ToHashSet();
+    public MigrationsApiSettings Settings => _options.Value;
+
+    protected MigrationsControllerBase(IOptions<MigrationsApiSettings> options) {
+        _options = options;
     }
 
     protected virtual bool HasAccess(out string rejectionReason) {
 
-        if (string.IsNullOrWhiteSpace(_apiKey)) {
+        if (string.IsNullOrWhiteSpace(Settings.ApiKey)) {
             rejectionReason = "No API key configured.";
             return false;
         }
@@ -34,7 +36,7 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
         }
 
         try {
-            if (SecurityUtils.Base64Decode(m.Groups[1].Value) != $"api:{_apiKey}") {
+            if (SecurityUtils.Base64Decode(m.Groups[1].Value) != $"api:{Settings.ApiKey}") {
                 rejectionReason = "Invalid API key specified in request.";
                 return false;
             }
@@ -49,7 +51,7 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
             return false;
         }
 
-        if (_allowList.Count == 0 || _allowList.Contains(address)) {
+        if (Settings.AllowList.Count == 0 || Settings.AllowList.Contains(address)) {
             rejectionReason = "Meh 3";
             return true;
         }

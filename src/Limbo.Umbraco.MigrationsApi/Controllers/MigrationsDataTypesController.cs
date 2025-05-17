@@ -1,5 +1,7 @@
 ﻿using Limbo.Umbraco.MigrationsApi.Models.DataTypes;
+using Limbo.Umbraco.MigrationsApi.Models.Settings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.Common.Attributes;
@@ -11,7 +13,7 @@ public class MigrationsDataTypesController : MigrationsControllerBase {
 
     private readonly IDataTypeService _dataTypeService;
 
-    public MigrationsDataTypesController(IDataTypeService dataTypeService) {
+    public MigrationsDataTypesController(IOptions<MigrationsApiSettings>  options, IDataTypeService dataTypeService) : base(options) {
         _dataTypeService = dataTypeService;
     }
 

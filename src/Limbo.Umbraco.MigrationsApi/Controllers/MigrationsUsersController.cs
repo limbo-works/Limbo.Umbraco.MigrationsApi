@@ -1,5 +1,7 @@
-﻿using Limbo.Umbraco.MigrationsApi.Models.Users;
+﻿using Limbo.Umbraco.MigrationsApi.Models.Settings;
+using Limbo.Umbraco.MigrationsApi.Models.Users;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Skybrud.Essentials.Guids;
 using Umbraco.Cms.Core.Models.Membership;
 using Umbraco.Cms.Core.Services;
@@ -12,7 +14,7 @@ public class MigrationsUsersController : MigrationsControllerBase {
 
     private readonly IUserService _userService;
 
-    public MigrationsUsersController(IUserService userService) {
+    public MigrationsUsersController(IOptions<MigrationsApiSettings> options, IUserService userService) : base(options) {
         _userService = userService;
     }
 
@@ -54,15 +56,10 @@ public class MigrationsUsersController : MigrationsControllerBase {
     }
 
     protected override bool HasAccess(out string rejectionReason) {
-
         if (!base.HasAccess(out rejectionReason)) return false;
-
-        bool enabled = true; //WebConfigurationManager.AppSettings["LimboMigrationsApiUsersEnabled"].ToBoolean();
-        if (enabled) return true;
-
+        if (Settings.Users.Enabled) return true;
         rejectionReason = "Users controller has not been enabled.";
         return false;
-
     }
 
 }

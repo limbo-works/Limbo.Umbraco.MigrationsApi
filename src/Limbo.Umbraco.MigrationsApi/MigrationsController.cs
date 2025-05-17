@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using Limbo.Umbraco.MigrationsApi.Models.Settings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using Skybrud.Essentials.AspNetCore.Json.Newtonsoft.Attributes;
 using Skybrud.Essentials.Json.Newtonsoft;
@@ -22,6 +24,7 @@ namespace Limbo.Umbraco.MigrationsApi;
 [PluginController("Limbo")]
 public partial class MigrationsController : UmbracoApiController {
 
+    private readonly IOptions<MigrationsApiSettings> _options;
     private readonly IContentTypeService _contentTypeService;
     private readonly IDataTypeService _dataTypeService;
     private readonly IMediaTypeService _mediaTypeService;
@@ -30,13 +33,16 @@ public partial class MigrationsController : UmbracoApiController {
     private readonly IMediaService _mediaService;
     private readonly IUmbracoContextAccessor _umbracoContextAccessor;
 
+    public MigrationsApiSettings Settings => _options.Value;
+
     private int? GetMaxLevelFromQuery() {
         return Request.Query["maxLevel"].ToString().ToInt32OrNull();
     }
 
     #region Constructors
 
-    public MigrationsController(IContentTypeService contentTypeService, IDataTypeService dataTypeService, IMediaTypeService mediaTypeService, IMemberTypeService memberTypeService, IMemberService memberService, IMediaService mediaService, IUmbracoContextAccessor umbracoContextAccessor) {
+    public MigrationsController(IOptions<MigrationsApiSettings> options, IContentTypeService contentTypeService, IDataTypeService dataTypeService, IMediaTypeService mediaTypeService, IMemberTypeService memberTypeService, IMemberService memberService, IMediaService mediaService, IUmbracoContextAccessor umbracoContextAccessor) {
+        _options = options;
         _contentTypeService = contentTypeService;
         _dataTypeService = dataTypeService;
         _mediaTypeService = mediaTypeService;
@@ -337,14 +343,13 @@ public partial class MigrationsController : UmbracoApiController {
 
     private bool HasAccess() {
 
-        string expectedApiKey = "temp"; //WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
-        if (string.IsNullOrWhiteSpace(expectedApiKey)) return false;
+        if (string.IsNullOrWhiteSpace(Settings.ApiKey)) return false;
 
         string auth = Request.Headers["Authorization"];
         if (!RegexUtils.IsMatch(auth ?? string.Empty, "Basic (.+?)$", out Match m)) return false;
 
         try {
-            return SecurityUtils.Base64Decode(m.Groups[1].Value) == $"api:{expectedApiKey}";
+            return SecurityUtils.Base64Decode(m.Groups[1].Value) == $"api:{Settings.ApiKey}";
         } catch {
             return false;
         }
