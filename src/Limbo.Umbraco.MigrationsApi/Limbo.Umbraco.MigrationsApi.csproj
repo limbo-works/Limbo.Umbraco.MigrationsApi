@@ -7,28 +7,28 @@
     <LangVersion>12</LangVersion>
   </PropertyGroup>
 
-    <PropertyGroup>
-	    <VersionPrefix>10.0.0</VersionPrefix>
-	    <VersionSuffix Condition="'$(Configuration)'=='Debug'">build$([System.DateTime]::UtcNow.ToString(`yyyyMMddHHmm`))</VersionSuffix>
-	    <Company>Limbo</Company>
-	    <Authors>Anders Bjerner</Authors>
-	    <Copyright>Copyright © $([System.DateTime]::UtcNow.ToString(`yyyy`))</Copyright>
-	    <Title>Limbo Migrations API</Title>
-	    <Product>Limbo Migrations</Product>
-    </PropertyGroup>
+  <PropertyGroup>
+    <VersionPrefix>10.0.0</VersionPrefix>
+    <VersionSuffix Condition="'$(Configuration)'=='Debug'">build$([System.DateTime]::UtcNow.ToString(`yyyyMMddHHmm`))</VersionSuffix>
+    <Company>Limbo</Company>
+    <Authors>Anders Bjerner</Authors>
+    <Copyright>Copyright © $([System.DateTime]::UtcNow.ToString(`yyyy`))</Copyright>
+    <Title>Limbo Migrations API</Title>
+    <Product>Limbo Migrations</Product>
+  </PropertyGroup>
 
-	<!-- Include dependencies -->
-	<ItemGroup>
-		<Reference Include="System.Web" />
-		<PackageReference Include="Skybrud.Essentials" Version="1.1.59" />
-		<PackageReference Include="Skybrud.Essentials.AspNetCore" Version="1.0.1" />
-		<PackageReference Include="Skybrud.Essentials.Http" Version="1.2.2" />
-		<PackageReference Include="Umbraco.Cms.Core" Version="[10.0.0,10.999)" />
-		<PackageReference Include="Umbraco.Cms.Web.Website" Version="[10.0.0,10.999)" />
-		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[10.0.0,10.999)" />
-	</ItemGroup>
+  <!-- Include dependencies -->
+  <ItemGroup>
+    <Reference Include="System.Web" />
+    <PackageReference Include="Skybrud.Essentials" Version="1.1.59" />
+    <PackageReference Include="Skybrud.Essentials.AspNetCore" Version="1.0.1" />
+    <PackageReference Include="Skybrud.Essentials.Http" Version="1.2.2" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="[10.0.0,10.999)" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="[10.0.0,10.999)" />
+    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[10.0.0,10.999)" />
+  </ItemGroup>
 
-	<ItemGroup>
+  <ItemGroup>
     <Content Include="..\build\Limbo.png" Link="Limbo.png">
       <PackagePath>\</PackagePath>
       <Pack>true</Pack>
