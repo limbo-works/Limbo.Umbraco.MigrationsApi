@@ -1,5 +1,4 @@
 ﻿using Limbo.Umbraco.MigrationsApi.Models.Users;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Skybrud.Essentials.Guids;
 using Umbraco.Cms.Core.Models.Membership;
@@ -36,8 +35,8 @@ public class MigrationsUsersController : MigrationsControllerBase {
 
         if (!HasAccess(out string reason)) return Unauthorized(reason);
 
-        IUser user = _userService.GetUserById(id);
-        return user is null ? NotFound() : (object) new ApiUser(user);
+        IUser? user = _userService.GetUserById(id);
+        return user is null ? NotFound() : new ApiUser(user);
 
     }
 
@@ -49,8 +48,8 @@ public class MigrationsUsersController : MigrationsControllerBase {
 
         int userId = GuidUtils.ToInt32(key);
 
-        IUser user = _userService.GetUserById(userId);
-        return user is null ? NotFound() : (object) new ApiUser(user);
+        IUser? user = _userService.GetUserById(userId);
+        return user is null ? NotFound() : new ApiUser(user);
 
     }
 

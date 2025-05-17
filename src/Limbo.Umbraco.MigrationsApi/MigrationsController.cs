@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Skybrud.Essentials.AspNetCore.Json.Newtonsoft.Attributes;
@@ -118,7 +119,7 @@ public partial class MigrationsController : UmbracoApiController {
         }
         IMedia? media = _mediaService.GetMediaByPath(path);
         IPublishedContent? published = media == null ? null : umbracoContext.Media?.GetById(media.Key);
-        return Ok(media == null ? NotFound() : MapMedia(published, GetMaxLevelFromQuery()));
+        return Ok(published == null ? NotFound() : MapMedia(published, GetMaxLevelFromQuery()));
     }
 
     [HttpGet]
@@ -144,22 +145,22 @@ public partial class MigrationsController : UmbracoApiController {
     [HttpGet]
     public object GetContentTypeById(int id) {
         if (!HasAccess()) return Unauthorized();
-        IContentType contentType = _contentTypeService.Get(id);
-        return MapContentType(contentType);
+        IContentType? contentType = _contentTypeService.Get(id);
+        return contentType == null ? NotFound() : MapContentType(contentType);
     }
 
     [HttpGet]
     public object GetContentTypeByKey(Guid key) {
         if (!HasAccess()) return Unauthorized();
-        IContentType contentType = _contentTypeService.Get(key);
-        return MapContentType(contentType);
+        IContentType? contentType = _contentTypeService.Get(key);
+        return contentType == null ? NotFound() : MapContentType(contentType);
     }
 
     [HttpGet]
     public object GetContentTypeByAlias(string alias) {
         if (!HasAccess()) return Unauthorized();
-        IContentType contentType = _contentTypeService.Get(alias);
-        return MapContentType(contentType);
+        IContentType? contentType = _contentTypeService.Get(alias);
+        return contentType == null ? NotFound() : MapContentType(contentType);
     }
 
     [HttpGet]
@@ -173,22 +174,22 @@ public partial class MigrationsController : UmbracoApiController {
     [HttpGet]
     public object GetMediaTypeById(int id) {
         if (!HasAccess()) return Unauthorized();
-        IMediaType contentType = _mediaTypeService.Get(id);
-        return MapMediaType(contentType);
+        IMediaType? contentType = _mediaTypeService.Get(id);
+        return contentType == null ? NotFound() : MapMediaType(contentType);
     }
 
     [HttpGet]
     public object GetMediaTypeByKey(Guid key) {
         if (!HasAccess()) return Unauthorized();
-        IMediaType contentType = _mediaTypeService.Get(key);
-        return MapMediaType(contentType);
+        IMediaType? contentType = _mediaTypeService.Get(key);
+        return contentType == null ? NotFound() : MapMediaType(contentType);
     }
 
     [HttpGet]
     public object GetMediaTypeByAlias(string alias) {
         if (!HasAccess()) return Unauthorized();
-        IMediaType contentType = _mediaTypeService.Get(alias);
-        return MapMediaType(contentType);
+        IMediaType? contentType = _mediaTypeService.Get(alias);
+        return contentType == null ? NotFound() : MapMediaType(contentType);
     }
 
     [HttpGet]
@@ -202,22 +203,22 @@ public partial class MigrationsController : UmbracoApiController {
     [HttpGet]
     public object GetMemberTypeById(int id) {
         if (!HasAccess()) return Unauthorized();
-        IMemberType memberType = _memberTypeService.Get(id);
-        return MapMemberType(memberType);
+        IMemberType? memberType = _memberTypeService.Get(id);
+        return memberType == null ? NotFound() : MapMemberType(memberType);
     }
 
     [HttpGet]
     public object GetMemberTypeByKey(Guid key) {
         if (!HasAccess()) return Unauthorized();
-        IMemberType memberType = _memberTypeService.Get(key);
-        return MapMemberType(memberType);
+        IMemberType? memberType = _memberTypeService.Get(key);
+        return memberType == null ? NotFound() : MapMemberType(memberType);
     }
 
     [HttpGet]
     public object GetMemberTypeByAlias(string alias) {
         if (!HasAccess()) return Unauthorized();
-        IMemberType memberType = _memberTypeService.Get(alias);
-        return MapMemberType(memberType);
+        IMemberType? memberType = _memberTypeService.Get(alias);
+        return memberType == null ? NotFound() : MapMemberType(memberType);
     }
 
     [HttpGet]
@@ -231,7 +232,6 @@ public partial class MigrationsController : UmbracoApiController {
     #endregion
 
     private object MapContentType(IContentType contentType) {
-        if (contentType == null) return null;
         return new {
             id = contentType.Id,
             key = contentType.Key,
@@ -245,29 +245,29 @@ public partial class MigrationsController : UmbracoApiController {
             updateDate = EssentialsTime.FromTicks(contentType.UpdateDate.Ticks, TimeZoneInfo.Local),
             defaultTemplate = MapTemplateItem(contentType.DefaultTemplate),
             allowedAsRoot = contentType.AllowedAsRoot,
-            allowedContentTypes = contentType.AllowedContentTypes.Select(MapContentTypeItem),
-            allowedTemplates = contentType.AllowedTemplates.Select(MapTemplateItem),
+            allowedContentTypes = contentType.AllowedContentTypes?.Select(MapContentTypeItem) ?? [],
+            allowedTemplates = contentType.AllowedTemplates?.Select(MapTemplateItem) ?? [],
             compositions = contentType
                 .CompositionIds()
-                .Select(x => _contentTypeService.Get(x))
+                .Select(x => _contentTypeService.Get(x)!)
                 .Select(MapContentTypeItem)
         };
     }
 
     private object MapContentTypeItem(ContentTypeSort contentType) {
-        return MapContentTypeItem(_contentTypeService.Get(contentType.Alias));
+        return MapContentTypeItem(_contentTypeService.Get(contentType.Alias)!);
     }
 
     private object MapContentTypeItem(IContentType contentType) {
-        return contentType == null ? null : new { id = contentType.Id, key = contentType.Key, alias = contentType.Alias, name = contentType.Name };
+        return new { id = contentType.Id, key = contentType.Key, alias = contentType.Alias, name = contentType.Name };
     }
 
-    private object MapTemplateItem(ITemplate template) {
+    [return: NotNullIfNotNull(nameof(template))]
+    private object? MapTemplateItem(ITemplate? template) {
         return template == null ? null : new { id = template.Id, key = template.Key, alias = template.Alias, name = template.Name };
     }
 
     private object MapMediaType(IMediaType mediaType) {
-        if (mediaType == null) return null;
         return new {
             id = mediaType.Id,
             key = mediaType.Key,
@@ -276,24 +276,23 @@ public partial class MigrationsController : UmbracoApiController {
             icon = mediaType.Icon,
             tabs = mediaType.CompositionPropertyGroups.Select(MapPropertyGroup),
             allowedAsRoot = mediaType.AllowedAsRoot,
-            allowedContentTypes = mediaType.AllowedContentTypes.Select(MapMediaTypeItem),
+            allowedContentTypes = mediaType.AllowedContentTypes?.Select(MapMediaTypeItem) ?? [],
             compositions = mediaType
                 .CompositionIds()
-                .Select(x => _mediaTypeService.Get(x))
+                .Select(x => _mediaTypeService.Get(x)!)
                 .Select(MapMediaTypeItem)
         };
     }
 
     private object MapMediaTypeItem(ContentTypeSort mediaType) {
-        return MapMediaTypeItem(_mediaTypeService.Get(mediaType.Alias));
+        return MapMediaTypeItem(_mediaTypeService.Get(mediaType.Alias)!);
     }
 
     private object MapMediaTypeItem(IMediaType mediaType) {
-        return mediaType == null ? null : new { id = mediaType.Id, key = mediaType.Key, alias = mediaType.Alias, name = mediaType.Name };
+        return new { id = mediaType.Id, key = mediaType.Key, alias = mediaType.Alias, name = mediaType.Name };
     }
 
     private object MapMemberType(IMemberType memberType) {
-        if (memberType == null) return null;
         return new {
             id = memberType.Id,
             key = memberType.Key,
@@ -303,13 +302,13 @@ public partial class MigrationsController : UmbracoApiController {
             tabs = memberType.CompositionPropertyGroups.Select(MapPropertyGroup),
             compositions = memberType
                 .CompositionIds()
-                .Select(x => _memberTypeService.Get(x))
+                .Select(x => _memberTypeService.Get(x)!)
                 .Select(MapMemberTypeItem)
         };
     }
 
     private object MapMemberTypeItem(IMemberType memberType) {
-        return memberType == null ? null : new { id = memberType.Id, key = memberType.Key, alias = memberType.Alias, name = memberType.Name };
+        return new { id = memberType.Id, key = memberType.Key, alias = memberType.Alias, name = memberType.Name };
     }
 
     private object MapPropertyGroup(PropertyGroup propertyGroup) {
@@ -318,7 +317,7 @@ public partial class MigrationsController : UmbracoApiController {
             key = propertyGroup.Key,
             name = propertyGroup.Name,
             sortOrder = propertyGroup.SortOrder,
-            properties = propertyGroup.PropertyTypes.Cast<PropertyType>().Select(MapPropertyType)
+            properties = propertyGroup.PropertyTypes?.Cast<PropertyType>().Select(MapPropertyType) ?? []
         };
     }
 
@@ -368,7 +367,7 @@ public partial class MigrationsController : UmbracoApiController {
 
         if (media.Level < maxLevel) {
             List<object> children = new List<object>();
-            foreach (var child in media.Children) {
+            foreach (var child in media.Children!) {
                 children.Add(MapMediaItem(child, maxLevel));
             }
             json.Add("children", JToken.FromObject(children));
@@ -395,7 +394,7 @@ public partial class MigrationsController : UmbracoApiController {
 
         if (content.Level < maxLevel) {
             List<object> children = new List<object>();
-            foreach (var child in content.Children) {
+            foreach (var child in content.Children!) {
                 children.Add(MapContentItem(child, maxLevel));
             }
             json.Add("children", JToken.FromObject(children));
@@ -446,13 +445,13 @@ public partial class MigrationsController : UmbracoApiController {
 
     private JToken MapProperty(IPublishedProperty property) {
 
-        object propertyValue = property.GetSourceValue();
+        object? propertyValue = property.GetSourceValue();
 
         if (propertyValue is string strValue) {
             strValue = strValue.Trim();
-            if (strValue.StartsWith("{") && strValue.EndsWith("}") && JsonUtils.TryParseJsonObject(strValue, out JObject objectValue)) {
+            if (strValue.StartsWith("{") && strValue.EndsWith("}") && JsonUtils.TryParseJsonObject(strValue, out JObject? objectValue)) {
                 propertyValue = objectValue;
-            } else if (strValue.StartsWith("[") && strValue.EndsWith("]") && JsonUtils.TryParseJsonArray(strValue, out JArray arrayValue)) {
+            } else if (strValue.StartsWith("[") && strValue.EndsWith("]") && JsonUtils.TryParseJsonArray(strValue, out JArray? arrayValue)) {
                 propertyValue = arrayValue;
             }
         } else if (propertyValue is DateTime dateTime) {
@@ -470,13 +469,13 @@ public partial class MigrationsController : UmbracoApiController {
 
     private JToken MapProperty(Property property) {
 
-        object propertyValue = property.GetValue();
+        object? propertyValue = property.GetValue();
 
         if (propertyValue is string strValue) {
             strValue = strValue.Trim();
-            if (strValue.StartsWith("{") && strValue.EndsWith("}") && JsonUtils.TryParseJsonObject(strValue, out JObject objectValue)) {
+            if (strValue.StartsWith("{") && strValue.EndsWith("}") && JsonUtils.TryParseJsonObject(strValue, out JObject? objectValue)) {
                 propertyValue = objectValue;
-            } else if (strValue.StartsWith("[") && strValue.EndsWith("]") && JsonUtils.TryParseJsonArray(strValue, out JArray arrayValue)) {
+            } else if (strValue.StartsWith("[") && strValue.EndsWith("]") && JsonUtils.TryParseJsonArray(strValue, out JArray? arrayValue)) {
                 propertyValue = arrayValue;
             }
         } else if (propertyValue is DateTime dateTime) {
@@ -520,7 +519,7 @@ public partial class MigrationsController : UmbracoApiController {
 
         List<T> path = new List<T>();
 
-        IPublishedContent parent = content.Parent;
+        IPublishedContent? parent = content.Parent;
 
         while (parent != null) {
 

@@ -27,7 +27,7 @@ public class ApiDataType {
     public string EditorAlias { get; }
 
     [JsonProperty("editor")]
-    public object Editor { get; }
+    public ApiDataEditor? Editor { get; }
 
     [JsonProperty("createDate")]
     public EssentialsTime CreateDate { get; }
@@ -42,7 +42,7 @@ public class ApiDataType {
         Id = dataType.Id;
         Key = dataType.Key;
         Path = dataType.Path;
-        Name = dataType.Name;
+        Name = dataType.Name ?? string.Empty;
         DbType = dataType.DatabaseType.ToKebabCase();
         CreateDate = EssentialsTime.FromTicks(dataType.CreateDate.Ticks, TimeZoneInfo.Local);
         UpdateDate = EssentialsTime.FromTicks(dataType.UpdateDate.Ticks, TimeZoneInfo.Local);

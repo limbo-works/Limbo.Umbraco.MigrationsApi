@@ -9,14 +9,14 @@ public partial class MigrationsController {
     [HttpGet]
     public IActionResult GetDataTypeById(int id) {
         if (!HasAccess()) return Unauthorized("Access Denied.");
-        IDataType dataType = _dataTypeService.GetDataType(id);
+        IDataType? dataType = _dataTypeService.GetDataType(id);
         return Ok(MapDataType(dataType));
     }
 
     [HttpGet]
     public IActionResult GetDataTypeByKey(Guid key) {
         if (!HasAccess()) return Unauthorized("Access Denied.");
-        IDataType dataType = _dataTypeService.GetDataType(key);
+        IDataType? dataType = _dataTypeService.GetDataType(key);
         return Ok(MapDataType(dataType));
     }
 
@@ -28,7 +28,7 @@ public partial class MigrationsController {
             .Select(MapDataType));
     }
 
-    private static object MapDataType(IDataType dataType) {
+    private static object? MapDataType(IDataType? dataType) {
         return dataType == null ? null : new ApiDataType(dataType);
     }
 

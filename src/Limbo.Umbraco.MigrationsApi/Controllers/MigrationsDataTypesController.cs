@@ -28,16 +28,16 @@ public class MigrationsDataTypesController : MigrationsControllerBase {
     [Route("api/limbo/migrations/dataTypes/{id:int}")]
     public object GetDataTypeById(int id) {
         if (!HasAccess(out string reason)) return Unauthorized(reason);
-        IDataType dataType = _dataTypeService.GetDataType(id);
-        return dataType is null ? NotFound() : (object) new ApiDataType(dataType);
+        IDataType? dataType = _dataTypeService.GetDataType(id);
+        return dataType is null ? NotFound() : new ApiDataType(dataType);
     }
 
     [HttpGet]
     [Route("api/limbo/migrations/dataTypes/{key:guid}")]
     public object GetDataTypeByKey(Guid key) {
         if (!HasAccess(out string reason)) return Unauthorized(reason);
-        IDataType dataType = _dataTypeService.GetDataType(key);
-        return dataType is null ? NotFound() : (object) new ApiDataType(dataType);
+        IDataType? dataType = _dataTypeService.GetDataType(key);
+        return dataType is null ? NotFound() : new ApiDataType(dataType);
     }
 
 }
