@@ -18,7 +18,7 @@ using Umbraco.Extensions;
 
 namespace Limbo.Umbraco.MigrationsApi;
 
-[NewtonsoftJsonOnlyConfigurationAttribute]
+[NewtonsoftJsonOnlyConfiguration]
 [PluginController("Limbo")]
 public partial class MigrationsController : UmbracoApiController {
 
@@ -88,7 +88,7 @@ public partial class MigrationsController : UmbracoApiController {
         if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
             return Problem("Could not obtain Umbraco Context");
         }
-        return Ok(umbracoContext.Media?.GetAtRoot(false, null).Select(x => MapMediaItem(x, GetMaxLevelFromQuery())));
+        return Ok(umbracoContext.Media?.GetAtRoot(false).Select(x => MapMediaItem(x, GetMaxLevelFromQuery())));
     }
 
     [HttpGet]
@@ -353,7 +353,7 @@ public partial class MigrationsController : UmbracoApiController {
 
     private object MapMediaItem(IPublishedContent media, int? maxLevel = null) {
 
-        if (maxLevel == null) maxLevel = media.Level + 1;
+        maxLevel ??= media.Level + 1;
 
         JObject json = JObject.FromObject(new {
             id = media.Id,
@@ -366,7 +366,7 @@ public partial class MigrationsController : UmbracoApiController {
         });
 
         if (media.Level < maxLevel) {
-            List<object> children = new List<object>();
+            List<object> children = [];
             foreach (var child in media.Children!) {
                 children.Add(MapMediaItem(child, maxLevel));
             }
@@ -379,7 +379,7 @@ public partial class MigrationsController : UmbracoApiController {
 
     private object MapContentItem(IPublishedContent content, int? maxLevel = null) {
 
-        if (maxLevel == null) maxLevel = content.Level + 1;
+        maxLevel ??= content.Level + 1;
 
         JObject json = JObject.FromObject(new {
             id = content.Id,
@@ -393,7 +393,7 @@ public partial class MigrationsController : UmbracoApiController {
         });
 
         if (content.Level < maxLevel) {
-            List<object> children = new List<object>();
+            List<object> children = [];
             foreach (var child in content.Children!) {
                 children.Add(MapContentItem(child, maxLevel));
             }
@@ -433,7 +433,8 @@ public partial class MigrationsController : UmbracoApiController {
 
     private object MapContent(IPublishedContent content, int? maxLevel = null) {
 
-        if (maxLevel == null) maxLevel = content.Level + 1;
+        maxLevel ??= content.Level + 1;
+
         JObject json = JObject.FromObject(MapContentItem(content, maxLevel));
 
         json["path"] = JToken.FromObject(GetPath(content, y => MapContentItem(y, 0)));
@@ -449,9 +450,9 @@ public partial class MigrationsController : UmbracoApiController {
 
         if (propertyValue is string strValue) {
             strValue = strValue.Trim();
-            if (strValue.StartsWith("{") && strValue.EndsWith("}") && JsonUtils.TryParseJsonObject(strValue, out JObject? objectValue)) {
+            if (strValue.StartsWith('{') && strValue.EndsWith('}') && JsonUtils.TryParseJsonObject(strValue, out JObject? objectValue)) {
                 propertyValue = objectValue;
-            } else if (strValue.StartsWith("[") && strValue.EndsWith("]") && JsonUtils.TryParseJsonArray(strValue, out JArray? arrayValue)) {
+            } else if (strValue.StartsWith('[') && strValue.EndsWith(']') && JsonUtils.TryParseJsonArray(strValue, out JArray? arrayValue)) {
                 propertyValue = arrayValue;
             }
         } else if (propertyValue is DateTime dateTime) {
@@ -493,7 +494,7 @@ public partial class MigrationsController : UmbracoApiController {
 
     private JToken MapProperties(IPublishedContent content) {
 
-        JObject properties = new JObject();
+        JObject properties = new();
 
         foreach (IPublishedProperty property in content.Properties) {
             properties.Add(property.Alias, MapProperty(property));
@@ -505,9 +506,9 @@ public partial class MigrationsController : UmbracoApiController {
 
     private JToken MapProperties(IMember member) {
 
-        JObject properties = new JObject();
+        JObject properties = new();
 
-        foreach (Property property in member.Properties) {
+        foreach (Property property in member.Properties.Cast<Property>()) {
             properties.Add(property.Alias, MapProperty(property));
         }
 
@@ -517,7 +518,7 @@ public partial class MigrationsController : UmbracoApiController {
 
     private List<T> GetPath<T>(IPublishedContent content, Func<IPublishedContent, T> func) {
 
-        List<T> path = new List<T>();
+        List<T> path = [];
 
         IPublishedContent? parent = content.Parent;
 

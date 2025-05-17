@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Skybrud.Essentials.AspNetCore.Json.Newtonsoft.Attributes;
 using Skybrud.Essentials.Security;
@@ -10,7 +9,7 @@ using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Limbo.Umbraco.MigrationsApi.Controllers;
 
-[NewtonsoftJsonOnlyConfigurationAttribute]
+[NewtonsoftJsonOnlyConfiguration]
 public abstract class MigrationsControllerBase : UmbracoApiController {
 
     private readonly string _apiKey;
@@ -44,18 +43,18 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
             return false;
         }
 
-        string? addr = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
-        if (string.IsNullOrWhiteSpace(addr)) {
+        string? address = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
+        if (string.IsNullOrWhiteSpace(address)) {
             rejectionReason = "Meh 2";
             return false;
         }
 
-        if (_allowList.Count == 0 || _allowList.Contains(addr)) {
+        if (_allowList.Count == 0 || _allowList.Contains(address)) {
             rejectionReason = "Meh 3";
             return true;
         }
 
-        rejectionReason = $"IP address '{addr}' is not allowed.";
+        rejectionReason = $"IP address '{address}' is not allowed.";
         return false;
 
     }

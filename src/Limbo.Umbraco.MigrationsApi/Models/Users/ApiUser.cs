@@ -23,7 +23,7 @@ public class ApiUser {
     public string Name { get; }
 
     [JsonProperty("language")]
-    public string Language { get; }
+    public string? Language { get; }
 
     [JsonProperty("createDate")]
     public EssentialsTime CreateDate { get; }
@@ -32,7 +32,7 @@ public class ApiUser {
     public EssentialsTime UpdateDate { get; }
 
     [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
-    public string Avatar { get; }
+    public string? Avatar { get; }
 
     [JsonProperty("state")]
     public string State { get; }
@@ -42,8 +42,8 @@ public class ApiUser {
         Key = user.Key;
         Username = user.Username;
         Email = user.Email;
-        Name = user.Name;
-        Language = user.Language;
+        Name = user.Name ?? string.Empty;
+        Language = user.Language.NullIfWhiteSpace();
         CreateDate = EssentialsTime.FromTicks(user.CreateDate.Ticks, TimeZoneInfo.Local);
         UpdateDate = EssentialsTime.FromTicks(user.UpdateDate.Ticks, TimeZoneInfo.Local);
         Avatar = user.Avatar.NullIfWhiteSpace();
