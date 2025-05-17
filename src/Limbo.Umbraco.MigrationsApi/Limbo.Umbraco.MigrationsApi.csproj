@@ -23,7 +23,6 @@
 		<PackageReference Include="Skybrud.Essentials" Version="1.1.59" />
 		<PackageReference Include="Skybrud.Essentials.AspNetCore" Version="1.0.1" />
 		<PackageReference Include="Skybrud.Essentials.Http" Version="1.2.2" />
-		<PackageReference Include="Skybrud.WebApi.Json" Version="1.1.0" />
 		<PackageReference Include="Umbraco.Cms.Core" Version="[10.0.0,10.999)" />
 		<PackageReference Include="Umbraco.Cms.Web.Website" Version="[10.0.0,10.999)" />
 		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[10.0.0,10.999)" />
