@@ -70,7 +70,7 @@ The endpoints exposed by this package requires an API key. You can set the API k
 {
     "Limbo": {
         "Migrations": {
-            "Api" {
+            "Api": {
                 "ApiKey": "your secret key"
             }
         }
@@ -84,7 +84,7 @@ Some (but still not all) endpoints also support an IP allow list, so if one or m
 {
     "Limbo": {
         "Migrations": {
-            "Api" {
+            "Api": {
                 "AllowList": [
                     "111.111.111.111",
                     "222.222.222.222"
@@ -101,7 +101,7 @@ The users endpoint is disabled by default. To enable it, you can add the followi
 {
     "Limbo": {
         "Migrations": {
-            "Api" {
+            "Api": {
                 "Users": {
                     "Enabled": true
                 }
