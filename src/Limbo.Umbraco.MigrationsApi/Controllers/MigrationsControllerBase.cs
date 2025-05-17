@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
+using Skybrud.Essentials.AspNetCore.Json.Newtonsoft;
 using Skybrud.Essentials.AspNetCore.Json.Newtonsoft.Attributes;
 using Skybrud.Essentials.Security;
 using Skybrud.Essentials.Strings;
-using Skybrud.WebApi.Json.Meta;
 using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Limbo.Umbraco.MigrationsApi.Controllers;
@@ -60,7 +60,7 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
     }
 
     protected IActionResult Unauthorized(string message) {
-        var body = JsonMetaResponse.GetError(HttpStatusCode.Unauthorized, message);
+        NewtonsoftJsonResult body = NewtonsoftJsonResult.Unauthorized(message);
         return StatusCode((int) HttpStatusCode.Unauthorized, body);
     }
 
