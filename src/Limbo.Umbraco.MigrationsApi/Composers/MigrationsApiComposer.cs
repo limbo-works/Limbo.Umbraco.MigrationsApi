@@ -10,7 +10,7 @@ public class MigrationsApiComposer : IComposer {
     public void Compose(IUmbracoBuilder builder) {
 
         builder.Services.AddOptions<MigrationsApiSettings>()
-            .Bind(builder.Config.GetSection("Limbo:Umbraco:Migrations:Api"))
+            .Bind(builder.Config.GetSection("Limbo:Migrations:Api"))
             .ValidateDataAnnotations();
 
     }
