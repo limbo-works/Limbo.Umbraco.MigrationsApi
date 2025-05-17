@@ -15,15 +15,8 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
 
     private readonly string _apiKey;
     private readonly HashSet<string> _allowList;
-    protected readonly IHttpContextAccessor _httpContextAccessor;
 
     protected MigrationsControllerBase() {
-        _apiKey = "temp"; //WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
-        _allowList = new HashSet<string>(); //WebConfigurationManager.AppSettings["LimboMigrationsApiAllowList"].ToStringArray().ToHashSet();
-    }
-
-    protected MigrationsControllerBase(IHttpContextAccessor httpContextAccessor) {
-        _httpContextAccessor = httpContextAccessor;
         _apiKey = "temp"; //WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
         _allowList = new HashSet<string>(); //WebConfigurationManager.AppSettings["LimboMigrationsApiAllowList"].ToStringArray().ToHashSet();
     }
@@ -35,13 +28,7 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
             return false;
         }
 
-        var httpRequest = _httpContextAccessor.HttpContext?.Request;
-        if (httpRequest == null) {
-            rejectionReason = "Http context not available.";
-            return false;
-        }
-
-        string auth = httpRequest.Headers["Authorization"];
+        string auth = Request.Headers.Authorization;
         if (!RegexUtils.IsMatch(auth ?? string.Empty, "Basic (.+?)$", out Match m)) {
             rejectionReason = "No or invalid API key specified in request.";
             return false;
@@ -57,13 +44,7 @@ public abstract class MigrationsControllerBase : UmbracoApiController {
             return false;
         }
 
-        var httpConnection = _httpContextAccessor.HttpContext?.Connection;
-        if (httpConnection == null) {
-            rejectionReason = "Http context not available.";
-            return false;
-        }
-
-        string addr = httpConnection.RemoteIpAddress?.ToString() + "";
+        string? addr = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
         if (string.IsNullOrWhiteSpace(addr)) {
             rejectionReason = "Meh 2";
             return false;

@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Skybrud.Essentials.AspNetCore.Json.Newtonsoft.Attributes;
@@ -29,15 +28,14 @@ public partial class MigrationsController : UmbracoApiController {
     private readonly IMemberService _memberService;
     private readonly IMediaService _mediaService;
     private readonly IUmbracoContextAccessor _umbracoContextAccessor;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
     private int? GetMaxLevelFromQuery() {
-        return _httpContextAccessor.HttpContext?.Request.Query["maxLevel"].ToString().ToInt32OrNull();
+        return Request.Query["maxLevel"].ToString().ToInt32OrNull();
     }
 
     #region Constructors
 
-    public MigrationsController(IContentTypeService contentTypeService, IDataTypeService dataTypeService, IMediaTypeService mediaTypeService, IMemberTypeService memberTypeService, IMemberService memberService, IMediaService mediaService, IUmbracoContextAccessor umbracoContextAccessor, IHttpContextAccessor httpContextAccessor) {
+    public MigrationsController(IContentTypeService contentTypeService, IDataTypeService dataTypeService, IMediaTypeService mediaTypeService, IMemberTypeService memberTypeService, IMemberService memberService, IMediaService mediaService, IUmbracoContextAccessor umbracoContextAccessor) {
         _contentTypeService = contentTypeService;
         _dataTypeService = dataTypeService;
         _mediaTypeService = mediaTypeService;
@@ -45,7 +43,6 @@ public partial class MigrationsController : UmbracoApiController {
         _memberService = memberService;
         _mediaService = mediaService;
         _umbracoContextAccessor = umbracoContextAccessor;
-        _httpContextAccessor = httpContextAccessor;
     }
 
     #endregion
@@ -344,10 +341,7 @@ public partial class MigrationsController : UmbracoApiController {
         string expectedApiKey = "temp"; //WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
         if (string.IsNullOrWhiteSpace(expectedApiKey)) return false;
 
-        var httpRequest = _httpContextAccessor.HttpContext?.Request;
-        if (httpRequest == null) return false;
-
-        string auth = httpRequest.Headers["Authorization"];
+        string auth = Request.Headers["Authorization"];
         if (!RegexUtils.IsMatch(auth ?? string.Empty, "Basic (.+?)$", out Match m)) return false;
 
         try {

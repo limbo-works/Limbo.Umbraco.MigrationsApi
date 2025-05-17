@@ -13,7 +13,7 @@ public class MigrationsUsersController : MigrationsControllerBase {
 
     private readonly IUserService _userService;
 
-    public MigrationsUsersController(IUserService userService, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor) {
+    public MigrationsUsersController(IUserService userService) {
         _userService = userService;
     }
 
