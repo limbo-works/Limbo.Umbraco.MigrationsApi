@@ -1,77 +1,71 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
-using System.Web;
-using System.Web.Configuration;
-using System.Web.Http;
+﻿using System.Text.RegularExpressions;
+using Limbo.Umbraco.MigrationsApi.Models.Settings;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Skybrud.Essentials.AspNetCore.Json.Newtonsoft;
+using Skybrud.Essentials.AspNetCore.Json.Newtonsoft.Attributes;
 using Skybrud.Essentials.Security;
 using Skybrud.Essentials.Strings;
-using Skybrud.Essentials.Strings.Extensions;
-using Skybrud.WebApi.Json;
-using Skybrud.WebApi.Json.Meta;
-using Umbraco.Web.WebApi;
+using Umbraco.Cms.Web.Common.Controllers;
 
-namespace Limbo.Umbraco.MigrationsApi.Controllers {
+namespace Limbo.Umbraco.MigrationsApi.Controllers;
 
-    [JsonOnlyConfiguration]
-    public abstract class MigrationsControllerBase : UmbracoApiController {
+[NewtonsoftJsonOnlyConfiguration]
+public abstract class MigrationsControllerBase : UmbracoApiController {
 
-        private readonly string _apiKey;
-        private readonly HashSet<string> _allowList;
+    private readonly IOptions<MigrationsApiSettings> _options;
 
-        protected MigrationsControllerBase() {
-            _apiKey = WebConfigurationManager.AppSettings["LimboMigrationsApiKey"];
-            _allowList = WebConfigurationManager
-                .AppSettings["LimboMigrationsApiAllowList"]
-                .ToStringArray()
-                .ToHashSet();
-        }
+    public MigrationsApiSettings Settings => _options.Value;
 
-        protected virtual bool HasAccess(out string rejectionReason) {
+    protected MigrationsControllerBase(IOptions<MigrationsApiSettings> options) {
+        _options = options;
+    }
 
-            if (string.IsNullOrWhiteSpace(_apiKey)) {
-                rejectionReason = "No API key configured.";
-                return false;
-            }
+    protected virtual bool HasAccess(out string rejectionReason) {
 
-            string auth = HttpContext.Current.Request.Headers["Authorization"];
-            if (!RegexUtils.IsMatch(auth ?? string.Empty, "Basic (.+?)$", out Match m)) {
-                rejectionReason = "No or invalid API key specified in request.";
-                return false;
-            }
-
-            try {
-                if (SecurityUtils.Base64Decode(m.Groups[1].Value) != $"api:{_apiKey}") {
-                    rejectionReason = "Invalid API key specified in request.";
-                    return false;
-                }
-            } catch {
-                rejectionReason = "Meh";
-                return false;
-            }
-
-            string addr = HttpContext.Current.Request.ServerVariables.Get("REMOTE_ADDR");
-            if (string.IsNullOrWhiteSpace(addr)) {
-                rejectionReason = "Meh";
-                return false;
-            }
-
-            if (_allowList.Count == 0 || _allowList.Contains(addr)) {
-                rejectionReason = null;
-                return true;
-            }
-
-            rejectionReason = $"IP address '{addr}' is not allowed.";
+        if (string.IsNullOrWhiteSpace(Settings.ApiKey)) {
+            rejectionReason = "No API key configured.";
             return false;
-
         }
 
-        protected IHttpActionResult Unauthorized(string message) {
-            var body = JsonMetaResponse.GetError(HttpStatusCode.Unauthorized, message);
-            return Content(HttpStatusCode.Unauthorized, body);
+        string auth = Request.Headers.Authorization;
+        if (!RegexUtils.IsMatch(auth ?? string.Empty, "Basic (.+?)$", out Match m)) {
+            rejectionReason = "No or invalid API key specified in request.";
+            return false;
         }
 
+        try {
+            if (SecurityUtils.Base64Decode(m.Groups[1].Value) != $"api:{Settings.ApiKey}") {
+                rejectionReason = "Invalid API key specified in request.";
+                return false;
+            }
+        } catch {
+            rejectionReason = "Meh";
+            return false;
+        }
+
+        string? address = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
+        if (string.IsNullOrWhiteSpace(address)) {
+            rejectionReason = "Meh 2";
+            return false;
+        }
+
+        if (Settings.AllowList.Count == 0 || Settings.AllowList.Contains(address)) {
+            rejectionReason = "Meh 3";
+            return true;
+        }
+
+        rejectionReason = $"IP address '{address}' is not allowed.";
+        return false;
+
+    }
+
+    protected IActionResult NotFound(string message) {
+        return NewtonsoftJsonResult.NotFound(message);
+    }
+
+    protected IActionResult Unauthorized(string message) {
+        return NewtonsoftJsonResult.Unauthorized(message);
     }
 
 }

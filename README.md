@@ -1,11 +1,11 @@
 # Limbo Migrations API
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/limbo-works/Limbo.Umbraco.MigrationsApi/blob/v8/main/LICENSE.md)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/limbo-works/Limbo.Umbraco.MigrationsApi/blob/v10/main/LICENSE.md)
 [![NuGet](https://img.shields.io/nuget/vpre/Limbo.Umbraco.MigrationsApi.svg)](https://www.nuget.org/packages/Limbo.Umbraco.MigrationsApi)
 [![NuGet](https://img.shields.io/nuget/dt/Limbo.Umbraco.MigrationsApi.svg)](https://www.nuget.org/packages/Limbo.Umbraco.MigrationsApi)
 [![Limbo.Umbraco.MigrationsApi at packages.limbo.works](https://img.shields.io/badge/limbo-packages-blue)](https://packages.limbo.works/limbo.umbraco.migrationsapi/)
 
-Adds an API to Umbraco 8 for exporting content, media and members. The API can then be consumed by [**Limbo.Umbraco.MigrationsClient**](https://github.com/limbo-works/Limbo.Umbraco.MigrationsClient) and [**Limbo.Umbraco.Migrations**](https://github.com/limbo-works/Limbo.Umbraco.Migrations).
+Adds an API to Umbraco 10 for exporting content, media and members. The API can then be consumed by [**Limbo.Umbraco.MigrationsClient**](https://github.com/limbo-works/Limbo.Umbraco.MigrationsClient) and [**Limbo.Umbraco.Migrations**](https://github.com/limbo-works/Limbo.Umbraco.Migrations).
 
 <table>
   <tr>
@@ -14,11 +14,11 @@ Adds an API to Umbraco 8 for exporting content, media and members. The API can t
   </tr>
   <tr>
     <td><strong>Umbraco:</strong></td>
-    <td>Umbraco 8.6+</td>
+    <td>Umbraco 10+</td>
   </tr>
   <tr>
     <td><strong>Target Framework:</strong></td>
-    <td>.NET Framework 4.7.2</td>
+    <td>.NET 6</td>
   </tr>
 </table>
 
@@ -35,22 +35,23 @@ Adds an API to Umbraco 8 for exporting content, media and members. The API can t
 
 ## Installation
 
-### Umbraco 8
+### Umbraco 10
 
-Via  [**NuGet**](https://www.nuget.org/packages/Limbo.Umbraco.MigrationsApi/8.0.3):
+Via  [**NuGet**](https://www.nuget.org/packages/Limbo.Umbraco.MigrationsApi/10.0.0):
 
 ```
-dotnet add package Limbo.Umbraco.MigrationsApi --version 8.0.3
+dotnet add package Limbo.Umbraco.MigrationsApi --version 10.0.0
 ```
 
 or:
 
 ```
-Install-Package Limbo.Umbraco.MigrationsApi -Version 8.0.3
+Install-Package Limbo.Umbraco.MigrationsApi -Version 10.0.0
 ```
 
 ### Other versions of Umbraco
 
+- [**`v8/main`**](https://github.com/limbo-works/Limbo.Umbraco.MigrationsApi/tree/v8/main) (Umbraco 8)
 - [**`v1/main`**](https://github.com/limbo-works/Limbo.Umbraco.MigrationsApi/tree/v1/main) (Umbraco 7)
 
 
@@ -61,27 +62,54 @@ Install-Package Limbo.Umbraco.MigrationsApi -Version 8.0.3
 
 ## Configuration
 
-The package can be configured via the `<appSettings>` element in your `Web.config` file.
+The package can be configured via the `appSettings.json` file and the `Limbo:Migrations:Api` section:
 
-The endpoints exposed by this package requires an API key. You can set the API key by adding a new setting with the key `LimboMigrationsApiKey` like shown below:
+The endpoints exposed by this package requires an API key. You can set the API key by adding a new setting with the key `ApiKey` like shown below:
 
-```xml
-<add key="LimboMigrationsApiKey" value="your secret key" />
-```
-
-The users endpoint is disabled by default. To enable it, you can add the following setting:
-
-```xml
-<add key="LimboMigrationsApiUsersEnabled" value="true" />
+```json
+{
+    "Limbo": {
+        "Migrations": {
+            "Api": {
+                "ApiKey": "your secret key"
+            }
+        }
+    }
+}
 ```
 
 Some (but still not all) endpoints also support an IP allow list, so if one or more IP addresses have been specified, the requesting IP address must be in the list to gain access:
 
-```xml
-<add key="LimboMigrationsApiAllowList" value="111.111.111.111,222.222.222.222" />
+```json
+{
+    "Limbo": {
+        "Migrations": {
+            "Api": {
+                "AllowList": [
+                    "111.111.111.111",
+                    "222.222.222.222"
+                ]
+            }
+        }
+    }
+}
 ```
 
+The users endpoint is disabled by default. To enable it, you can add the following setting:
 
+```json
+{
+    "Limbo": {
+        "Migrations": {
+            "Api": {
+                "Users": {
+                    "Enabled": true
+                }
+            }
+        }
+    }
+}
+```
 
 <br /><br />
 
