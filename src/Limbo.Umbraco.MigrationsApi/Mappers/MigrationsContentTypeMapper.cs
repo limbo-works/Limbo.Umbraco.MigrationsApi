@@ -40,7 +40,7 @@ public class MigrationsContentTypeMapper {
         }
 
         List<ApiPropertyGroup> propertyGroups = [];
-        foreach (PropertyGroup propertyGroup in contentType.PropertyGroups) {
+        foreach (PropertyGroup propertyGroup in contentType.CompositionPropertyGroups) {
             propertyGroups.Add(PropertyMapper.Map(propertyGroup));
         }
 
